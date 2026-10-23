@@ -18,9 +18,9 @@ const envSchema = z.object({
     .string()
     .transform((val) => val === 'true')
     .default('false'),
-  SEED_DEMO_PASSWORD: z.string().default('12345678'),
+  SEED_DEMO_PASSWORD: z.string().default('demo_password_1234'),
   PLATFORM_ADMIN_EMAIL: z.string().email().default('admin@pos.bt'),
-  PLATFORM_ADMIN_INITIAL_PASSWORD: z.string().default('Platform1234!'),
+  PLATFORM_ADMIN_INITIAL_PASSWORD: z.string().default('ChangeMeOnFirstLogin123!'),
 });
 
 const parsed = envSchema.safeParse(process.env);

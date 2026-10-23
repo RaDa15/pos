@@ -29,9 +29,11 @@ jobs:
     env:
       DATABASE_URL: postgresql://pos:pos_dev_pass@localhost:5432/pos_dev?schema=public
       PLATFORM_ADMIN_EMAIL: admin@pos.bt
-      PLATFORM_ADMIN_PASSWORD: AdminPassword123!
+      PLATFORM_ADMIN_INITIAL_PASSWORD: ChangeMeOnFirstLogin123!
       SESSION_SECRET: test-session-secret-at-least-32-chars-long
       SEED_DEMO_BUSINESSES: 'true'
+      SEED_DEMO_PASSWORD: demo_password_1234
+      TOTP_ENCRYPTION_KEY: MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=
 
     steps:
       - name: Checkout code
