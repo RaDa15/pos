@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build shared package
+        run: pnpm --filter @pos/shared build
+
       - name: Run linter
         run: pnpm lint
 
