@@ -6,10 +6,10 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 3 — Auth, registration, employees, tenancy |
-| Status | Phase 2 completed, Phase 3 ready |
+| Current phase | Phase 4 — App shell, design system & i18n |
+| Status | Phase 3 completed, Phase 4 ready |
 | Last updated | 2026-10-23 |
-| Next step | Phase 3: Session middleware (connect-pg-simple), CSRF, registration, auth routes, employee CRUD, tenant test harness |
+| Next step | Phase 4: `tokens.css`, `base.css`, `print.css`, self-hosted fonts, light/dark themes, responsive shell, i18next (en/dz) |
 | Blockers | None for Phases 0–4. Open questions in `docs/README.md` must be answered before the phases marked there |
 
 ## Phase progress
@@ -19,7 +19,7 @@ The project's living log. AI sessions forget everything between chats; this file
 | 0 Setup | Done | Exit criteria passed (pnpm dev runs web+api, lint/test/typecheck green) |
 | 1 Shared domain engine | Done | AC-29, AC-30, AC-31 passed; 1,000-cart prototype comparison green; 100% test coverage |
 | 2 Database & seed | Done | AC-66 passed; all 22 models, 23 enums, raw SQL constraints, tenant isolation tests, atomic counters 50-call concurrency test, demo seed verified |
-| 3 Auth, registration, employees, tenancy | Not started | — |
+| 3 Auth, registration, employees, tenancy | Done | AC-01..03, AC-08..14, AC-58..60, AC-62, AC-63 passed; CSRF, lockout, sessions, employee CRUD, tenant isolation harness, web screens SCR-01 to SCR-06 |
 | 4 App shell, design system & i18n | Not started | — |
 | 5 Catalogue & settings | Not started | — |
 | 6 Inventory, customers & suppliers | Not started | — |
@@ -114,5 +114,22 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
   - GitHub Actions CI workflow created (`.github/workflows/ci.yml`).
   - Multi-stage Dockerfiles for API and Web (Nginx).
   - All tests, typechecks, and linter passing.
-  - Next: Phase 1 — Shared domain engine (`packages/shared/src/money/engine.ts`).
+- 2026-10-23 — **Phase 1 (Shared domain engine) completed**:
+  - Implemented `@pos/shared/src/money/engine.ts`, `format.ts`, `words.ts` (Ngultrum & Chhertum), `plans.ts`, `permissions.ts`.
+  - 100% test coverage; 1,000-cart randomized comparison with prototype engine; AC-29, AC-30, AC-31, BR-12..16, BR-37 passing.
+- 2026-10-23 — **Phase 2 (Database & seed) completed**:
+  - Prisma schema with 22 models, 23 enums, raw SQL constraints and indexes.
+  - Multi-tenant client extension with `forTenant` scoping and runtime checks.
+  - Concurrency-safe atomic counter generation (`INV-YYYY-NNNNN`, `PUR-YYYY-NNNNN`, `KOT-NNNN`, `CR-NNNN`, `EXP-YYYY-NNNNN`).
+  - Seed script generating 4 demo businesses (Pema Store, Norbu Store, Test Restaurant, Himalayan Cafe) with realistic data.
+- 2026-10-23 — **Phase 3 (Auth, registration, employees, tenancy) completed**:
+  - Backend: PostgreSQL session store (`connect-pg-simple`), double-submit CSRF protection (`/auth/csrf`), rate limiting (company login, registration, global API).
+  - Business registration (`POST /register`, `GET /register/name-available`) generating unique `BIZ-XXXXX`, Admin employee, 3 tax rates, default customer discounts, and 14-day trial.
+  - Two-step sign-in (`POST /auth/company-login`, `POST /auth/employee-login` with 5-attempt 15-min lockout, session regeneration, device cookie).
+  - Middleware: `requireEmployee`, `requirePermission`, `requireActiveSubscription`, `requirePlanFeature`, centralized `errorHandler`.
+  - Employee CRUD with last-admin protection, plan limits (BR-07), temporary password reset, forced password change (`mustChangePassword`, `POST /me/password`), and language preference persistence (`PATCH /me`).
+  - Tenant isolation test harness verifying zero cross-tenant leakage (`AC-58`, `AC-59`, `AC-60`).
+  - Frontend: `apps/web/src/api/client.ts` (CSRF token handling & retry), `AuthContext.tsx`, screens SCR-01 (Landing), SCR-02 (Register Details), SCR-03 (Plan Select), SCR-04 (Company Login), SCR-05 (Employee Login), SCR-06 (Forced Set New Password), App Shell placeholder (`/app`).
+  - Acceptance Criteria: AC-01, AC-02, AC-03, AC-08 to AC-14, AC-58 to AC-60, AC-62, AC-63 all verified & passing. 78/78 tests green across monorepo.
+  - Next: Phase 4 — App shell, design system & i18n.
 

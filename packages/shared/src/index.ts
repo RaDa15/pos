@@ -8,4 +8,5 @@ export * from './enums.js';
 export * from './business-types.js';
 export * from './plans.js';
 export * from './permissions.js';
+export * from './password-policy.js';
 export * from './schemas/index.js';

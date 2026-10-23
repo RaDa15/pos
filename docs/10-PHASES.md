@@ -67,14 +67,14 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 2
 - **Tasks:**
-  - [ ] Session middleware (connect-pg-simple), CSRF double-submit, rate limiters
-  - [ ] `POST /register`, `GET /register/name-available` (BR-01, BR-03)
-  - [ ] Company sign-in + device cookie; employee sign-in with lockout; logout; forget device; `GET /auth/me`; `GET /auth/csrf`; `GET /auth/device`
-  - [ ] Middleware: `requireEmployee` (reloads employee and subscription each request), `requirePermission`, `requireActiveSubscription`, `requirePlanFeature`, `errorHandler` with the codes in `07-API-SPEC.md` §2
-  - [ ] Employees CRUD, reset password, `POST /me/password`, `PATCH /me` (BR-02, plan limit check stubbed to read `plans.ts`)
-  - [ ] `lib/audit.ts` and audit calls for every auth and employee action (`05` §7)
-  - [ ] Web: SCR-01 to SCR-06 (unstyled is fine; styled in Phase 4)
-  - [ ] Tenant-isolation test harness: create two businesses, call every list and detail route as each (extended as routes are added)
+  - [x] Session middleware (connect-pg-simple), CSRF double-submit, rate limiters
+  - [x] `POST /register`, `GET /register/name-available` (BR-01, BR-03)
+  - [x] Company sign-in + device cookie; employee sign-in with lockout; logout; forget device; `GET /auth/me`; `GET /auth/csrf`; `GET /auth/device`
+  - [x] Middleware: `requireEmployee` (reloads employee and subscription each request), `requirePermission`, `requireActiveSubscription`, `requirePlanFeature`, `errorHandler` with the codes in `07-API-SPEC.md` §2
+  - [x] Employees CRUD, reset password, `POST /me/password`, `PATCH /me` (BR-02, plan limit check stubbed to read `plans.ts`)
+  - [x] `lib/audit.ts` and audit calls for every auth and employee action (`05` §7)
+  - [x] Web: SCR-01 to SCR-06 (unstyled is fine; styled in Phase 4)
+  - [x] Tenant-isolation test harness: create two businesses, call every list and detail route as each (extended as routes are added)
 - **Deliverables:** a business can register, sign in and manage employees.
 - **Acceptance:** AC-01, AC-02, AC-03, AC-08 to AC-14, AC-58 to AC-60, AC-62, AC-63.
 

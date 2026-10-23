@@ -114,6 +114,16 @@ export async function seed() {
   ];
 
 async function cleanDemoBusiness(businessId: string) {
+  await prisma.auditLog.deleteMany({ where: { businessId } });
+  await prisma.heldOrder.deleteMany({ where: { businessId } });
+  await prisma.idempotencyKey.deleteMany({ where: { businessId } });
+  await prisma.kitchenOrderItem.deleteMany({ where: { businessId } });
+  await prisma.kitchenOrder.deleteMany({ where: { businessId } });
+  await prisma.saleItem.deleteMany({ where: { businessId } });
+  await prisma.payment.deleteMany({ where: { businessId } });
+  await prisma.sale.deleteMany({ where: { businessId } });
+  await prisma.purchaseItem.deleteMany({ where: { businessId } });
+  await prisma.purchase.deleteMany({ where: { businessId } });
   await prisma.stockMovement.deleteMany({ where: { businessId } });
   await prisma.expense.deleteMany({ where: { businessId } });
   await prisma.counter.deleteMany({ where: { businessId } });
@@ -123,6 +133,7 @@ async function cleanDemoBusiness(businessId: string) {
   await prisma.supplier.deleteMany({ where: { businessId } });
   await prisma.employee.deleteMany({ where: { businessId } });
   await prisma.taxRate.deleteMany({ where: { businessId } });
+  await prisma.subscriptionPayment.deleteMany({ where: { businessId } });
   await prisma.subscriptionEvent.deleteMany({ where: { businessId } });
   await prisma.subscription.deleteMany({ where: { businessId } });
   await prisma.business.delete({ where: { id: businessId } });
