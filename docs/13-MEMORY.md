@@ -6,10 +6,10 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 2 — Database & seed |
-| Status | Phase 1 completed, Phase 2 ready |
+| Current phase | Phase 3 — Auth, registration, employees, tenancy |
+| Status | Phase 2 completed, Phase 3 ready |
 | Last updated | 2026-10-23 |
-| Next step | Phase 2: `schema.prisma`, SQL migrations, tenant extension, counters, and seeds |
+| Next step | Phase 3: Session middleware (connect-pg-simple), CSRF, registration, auth routes, employee CRUD, tenant test harness |
 | Blockers | None for Phases 0–4. Open questions in `docs/README.md` must be answered before the phases marked there |
 
 ## Phase progress
@@ -18,7 +18,7 @@ The project's living log. AI sessions forget everything between chats; this file
 |---|---|---|
 | 0 Setup | Done | Exit criteria passed (pnpm dev runs web+api, lint/test/typecheck green) |
 | 1 Shared domain engine | Done | AC-29, AC-30, AC-31 passed; 1,000-cart prototype comparison green; 100% test coverage |
-| 2 Database & seed | Not started | — |
+| 2 Database & seed | Done | AC-66 passed; all 22 models, 23 enums, raw SQL constraints, tenant isolation tests, atomic counters 50-call concurrency test, demo seed verified |
 | 3 Auth, registration, employees, tenancy | Not started | — |
 | 4 App shell, design system & i18n | Not started | — |
 | 5 Catalogue & settings | Not started | — |
