@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POS SYSTEM — Bhutan Multi-Tenant POS &amp; GST Platform</title>
+  <meta http-equiv="refresh" content="0; url=./pos/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --accent: #f59e0b;
+      --accent-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0b1120 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      padding: 2.5rem;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+    p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      background: var(--accent-gradient);
+      color: #0b1120;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 0.625rem;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+    }
+    .spinner {
+      margin: 1.5rem auto 0;
+      width: 26px;
+      height: 26px;
+      border: 3px solid rgba(255, 255, 255, 0.12);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+  <script>
+    // Immediate client-side redirection to the interactive POS prototype
+    (function () {
+      var currentPath = window.location.pathname;
+      var target = currentPath.endsWith('/')
+        ? currentPath + 'pos/'
+        : currentPath.replace(/\/index\.html$/, '') + '/pos/';
+      window.location.replace(target);
+    })();
+  </script>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">Bhutan GST &amp; POS SaaS</div>
+    <h1>POS SYSTEM</h1>
+    <p>Redirecting to the interactive POS terminal and management prototype...</p>
+    <a href="./pos/" class="btn">
+      <span>Open POS Prototype</span>
+      <span>&rarr;</span>
+    </a>
+    <div class="spinner" aria-label="Loading"></div>
+  </div>
+</body>
+</html>
