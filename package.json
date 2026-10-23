@@ -1,0 +1,25 @@
+{
+  "name": "pos-system",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-tenant POS and GST SaaS for Bhutanese businesses",
+  "packageManager": "pnpm@11.20.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @pos/api --filter @pos/web dev",
+    "dev:api": "pnpm --filter @pos/api dev",
+    "dev:web": "pnpm --filter @pos/web dev",
+    "build": "pnpm --filter @pos/shared build && pnpm --filter @pos/api build && pnpm --filter @pos/web build",
+    "test": "pnpm --recursive test",
+    "lint": "eslint .",
+    "typecheck": "pnpm --recursive typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "eslint": "^9.20.1",
+    "prettier": "^3.5.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.0"
+  }
+}

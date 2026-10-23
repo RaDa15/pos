@@ -6,17 +6,17 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 0 — Setup |
-| Status | Not started (planning docs complete) |
+| Current phase | Phase 1 — Shared domain engine |
+| Status | Phase 0 completed, Phase 1 ready |
 | Last updated | 2026-10-23 |
-| Next step | First task of Phase 0: initialise git with `prototype/` unchanged, then create the pnpm workspace |
+| Next step | Phase 1: `packages/shared/src/money/engine.ts` integer-chhertum calculation |
 | Blockers | None for Phases 0–4. Open questions in `docs/README.md` must be answered before the phases marked there |
 
 ## Phase progress
 
 | Phase | Status | Acceptance |
 |---|---|---|
-| 0 Setup | Not started | — |
+| 0 Setup | Done | Exit criteria passed (pnpm dev runs web+api, lint/test/typecheck green) |
 | 1 Shared domain engine | Not started | — |
 | 2 Database & seed | Not started | — |
 | 3 Auth, registration, employees, tenancy | Not started | — |
@@ -83,6 +83,36 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
 | Leftover "nimbus" names; demo controls (Simulate expiration, upgrade cards) in the app | Removed | 4, 11 |
 | Demo data charged 5% GST on rice, cooking oil and salt (reportedly exempt) | Exempt tax category (BR-10), seed fix | 2 |
 
+## Dependency versions recorded (Phase 0)
+
+| Package | Version |
+|---|---|
+| Node.js | 26.4.0 (target: 24 LTS) |
+| pnpm | 11.20.0 |
+| TypeScript | 5.9.3 |
+| Express | 5.0.1 |
+| React & React-DOM | 19.0.0 |
+| React Router | 7.2.0 |
+| TanStack Query | 5.66.0 |
+| Zod | 3.24.2 |
+| Vitest | 3.2.7 |
+| Playwright | 1.64.1 |
+| ESLint | 9.39.5 |
+| Prettier | 3.9.10 |
+| PostgreSQL | 17-alpine (Docker) |
+
 ## Session log
 
-- 2026-10-23 — Prototype reviewed; planning docs created (`docs/` 01–13, README, CLAUDE.md); user chose production SaaS on React + Node + PostgreSQL with Claude Code — Next: Phase 0
+- 2026-10-23 — Prototype reviewed; planning docs created (`docs/` 01–13, README, CLAUDE.md); user chose production SaaS on React + Node + PostgreSQL with Claude Code
+- 2026-10-23 — **Phase 0 (Setup) completed**:
+  - Git initialized on branch `main` and pushed to GitHub (`https://github.com/RaDa15/pos.git`).
+  - Monorepo created with pnpm: `@pos/shared`, `@pos/api`, `@pos/web`.
+  - Express 5 API with Zod-validated env, helmet, pino, CORS, and `/api/v1/health`.
+  - Vite + React 19 + React Router + TanStack Query skeleton with health check display.
+  - Docker Compose configured for PostgreSQL 17; `.env.example` created with all documented keys.
+  - ESLint with `dangerouslySetInnerHTML` banned, Prettier, Vitest in all packages, Playwright E2E in `apps/web`.
+  - GitHub Actions CI workflow created (`.github/workflows/ci.yml`).
+  - Multi-stage Dockerfiles for API and Web (Nginx).
+  - All tests, typechecks, and linter passing.
+  - Next: Phase 1 — Shared domain engine (`packages/shared/src/money/engine.ts`).
+

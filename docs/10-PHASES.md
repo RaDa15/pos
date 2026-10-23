@@ -26,17 +26,17 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** nothing
 - **Tasks:**
-  - [ ] Initialise git; confirm `prototype/` (original files + `README.md`) is committed unchanged as the read-only reference
-  - [ ] Create the pnpm workspace: `packages/shared`, `apps/api`, `apps/web` with TypeScript strict configs and path aliases
-  - [ ] `apps/web`: Vite + React 19 + React Router + TanStack Query skeleton with one page "POS SYSTEM"
-  - [ ] `apps/api`: Express 5 app with helmet, pino, Zod-validated env (`03-TRD.md` §4), `GET /api/v1/health`
-  - [ ] `docker-compose.yml` with PostgreSQL 17 for local dev; `.env.example` with every variable name
-  - [ ] ESLint (incl. a rule banning `dangerouslySetInnerHTML`) + Prettier; Vitest in all three packages; Playwright in `apps/web`
-  - [ ] GitHub Actions CI: install, lint, type-check, unit tests, `pnpm audit --prod`
-  - [ ] Production Dockerfiles (api, web via nginx) and staging deploy of the skeleton
-  - [ ] Record exact dependency versions in `13-MEMORY.md`
+  - [x] Initialise git; confirm `pos/` (original files + `README.md`) is committed unchanged as the read-only reference
+  - [x] Create the pnpm workspace: `packages/shared`, `apps/api`, `apps/web` with TypeScript strict configs and path aliases
+  - [x] `apps/web`: Vite + React 19 + React Router + TanStack Query skeleton with one page "POS SYSTEM"
+  - [x] `apps/api`: Express 5 app with helmet, pino, Zod-validated env (`03-TRD.md` §4), `GET /api/v1/health`
+  - [x] `docker-compose.yml` with PostgreSQL 17 for local dev; `.env.example` with every variable name
+  - [x] ESLint (incl. a rule banning `dangerouslySetInnerHTML`) + Prettier; Vitest in all three packages; Playwright in `apps/web`
+  - [x] GitHub Actions CI: install, lint, type-check, unit tests, `pnpm audit --prod`
+  - [x] Production Dockerfiles (api, web via nginx) and staging deploy of the skeleton
+  - [x] Record exact dependency versions in `13-MEMORY.md`
 - **Deliverables:** running skeleton locally and on staging.
-- **Acceptance:** exit criteria in the overview.
+- **Acceptance:** exit criteria in the overview (passed).
 
 ## Phase 1 — Shared domain engine
 
