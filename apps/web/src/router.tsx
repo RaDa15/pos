@@ -17,6 +17,11 @@ import { DashboardScreen } from './screens/DashboardScreen.js';
 import { ProductsScreen } from './screens/ProductsScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 
+// Phase 6 Screens: SCR-12 Inventory, SCR-18 Customers, SCR-19 Suppliers
+import { InventoryScreen } from './screens/InventoryScreen.js';
+import { CustomersScreen } from './screens/CustomersScreen.js';
+import { SuppliersScreen } from './screens/SuppliersScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -122,12 +127,7 @@ export const router = createBrowserRouter([
         path: '/app/inventory',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-12"
-              title="Inventory & Stock Movements"
-              description="Current stock levels, low-stock alerts, expiry date tracking, and stock movement logs."
-              phaseNumber={6}
-            />
+            <InventoryScreen />
           </ProtectedRoute>
         ),
       },
@@ -200,12 +200,7 @@ export const router = createBrowserRouter([
         path: '/app/customers',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-18"
-              title="Customers & Credit Accounts"
-              description="Customer directory, VIP discounts, credit limits, outstanding balances, and settlement ledger."
-              phaseNumber={6}
-            />
+            <CustomersScreen />
           </ProtectedRoute>
         ),
       },
@@ -213,12 +208,7 @@ export const router = createBrowserRouter([
         path: '/app/suppliers',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-19"
-              title="Suppliers Directory"
-              description="Supplier registry, outstanding balances, contact details, and purchase records."
-              phaseNumber={6}
-            />
+            <SuppliersScreen />
           </ProtectedRoute>
         ),
       },

@@ -109,10 +109,10 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 5
 - **Tasks:**
-  - [ ] Stock movements API with sign rules and negative-stock rejection (BR-25); `stock_after`
-  - [ ] Inventory alerts (BR-26), sidebar badge, SCR-12
-  - [ ] Customers API (types per business type, credit limit), history, settlements with `CR-NNNN` (BR-20), SCR-18
-  - [ ] Suppliers API with computed totals, SCR-19
+  - [x] Stock movements API with sign rules and negative-stock rejection (BR-25); `stock_after`
+  - [x] Inventory alerts (BR-26), sidebar badge, SCR-12
+  - [x] Customers API (types per business type, credit limit), history, settlements with `CR-NNNN` (BR-20), SCR-18
+  - [x] Suppliers API with computed totals, SCR-19
 - **Deliverables:** stock control and customer/supplier records.
 - **Acceptance:** AC-22, AC-23, AC-24, AC-49, AC-50.
 

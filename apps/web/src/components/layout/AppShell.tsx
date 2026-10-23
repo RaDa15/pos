@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '../../api/client.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useToast } from '../ui/Toast.js';
 import { SubscriptionBadge } from '../ui/SubscriptionBadge.js';
@@ -70,6 +72,17 @@ export const AppShell: React.FC<AppShellProps> = ({
   const effectiveStatus = (subscription?.effectiveStatus || 'trial').toLowerCase();
   const isSubscriptionActive = effectiveStatus === 'active' || effectiveStatus === 'trial';
 
+  // Real-time inventory alerts badge count (BR-26 / AC-24)
+  const { data: alertsResponse } = useQuery<{
+    data: { counts: { badgeCount: number } };
+  }>({
+    queryKey: ['sidebar-inventory-alerts'],
+    queryFn: async () => apiClient.get('/inventory/alerts'),
+    enabled: Boolean(employee && isSubscriptionActive),
+    refetchInterval: 60000,
+  });
+  const inventoryBadgeCount = alertsResponse?.data?.counts?.badgeCount;
+
   // Navigation sections based on 08-APP-FLOW.md §1
   const navSections: NavSectionDef[] = [
     {
@@ -110,6 +123,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           labelKey: 'nav.inventory',
           defaultLabel: 'Inventory',
           permission: 'inventory.view',
+          badgeCount: inventoryBadgeCount,
         },
         {
           path: '/app/purchases',

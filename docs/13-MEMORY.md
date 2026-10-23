@@ -147,4 +147,13 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
   - CSV template download (`GET /products/import-template.csv`), bulk import (`POST /products/import`) with stock movements, and export (`GET /products/export.csv`).
   - Full UI screens: `ProductsScreen.tsx` (SCR-11) and `SettingsScreen.tsx` (SCR-24).
   - All 11 new integration tests in `products.test.ts` and `settings.test.ts` passing; 97/97 total test suite passing (`AC-17`–`AC-21`, `AC-52`, `AC-53`).
-  - Next: Phase 6 — Inventory, customers & suppliers.
+- 2026-10-23 — **Phase 6 (Inventory, customers & suppliers) completed**:
+  - Stock movements API (`POST /stock-movements`, `GET /stock-movements`, `GET /inventory/stock`) with strict sign rules (stock_in > 0, stock_out < 0, adjustment) and negative-stock prevention (`BR-25`, `AC-22`, `AC-23`).
+  - Inventory alerts API (`GET /inventory/alerts`) computing low stock, out of stock, expiring soon (<= 30 days), expired, and sidebar badge count (`BR-26`, `AC-24`).
+  - Real-time inventory alerts badge integrated into `AppShell.tsx` navigation sidebar.
+  - Customers API (`GET/POST /customers`, `PATCH /customers/:id`, `GET /customers/:id/history`) with allowed types per business type (`BR-35`), credit limit tracking, and header balance totals.
+  - Credit settlements API (`POST /customers/:id/settlements`) with `withIdempotency`, rejection when payment exceeds balance (`BR-20`, `AC-49`), atomic counter receipt `CR-NNNN`, and audit logs.
+  - Suppliers API (`GET/POST /suppliers`, `PATCH /suppliers/:id`) with computed `paidTotal` and `outstandingTotal` aggregating opening balances and purchase invoices (`BR-38`, `AC-50`).
+  - Full UI screens: `InventoryScreen.tsx` (SCR-12), `CustomersScreen.tsx` (SCR-18), and `SuppliersScreen.tsx` (SCR-19) mounted in `router.tsx`.
+  - All 9 Phase 6 integration tests passing cleanly; 106/106 tests green across monorepo (`AC-22`–`AC-24`, `AC-49`, `AC-50`).
+  - Next: Phase 7 — POS & receipts.

@@ -154,23 +154,28 @@ export async function apiRequest<T = unknown>(
 }
 
 export const api = {
-  get: <T>(url: string) => apiRequest<T>(url, { method: 'GET' }),
-  post: <T>(url: string, body?: unknown) =>
+  get: <T>(url: string, headers?: Record<string, string>) =>
+    apiRequest<T>(url, { method: 'GET', headers }),
+  post: <T>(url: string, body?: unknown, headers?: Record<string, string>) =>
     apiRequest<T>(url, {
       method: 'POST',
       body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+      headers,
     }),
-  put: <T>(url: string, body?: unknown) =>
+  put: <T>(url: string, body?: unknown, headers?: Record<string, string>) =>
     apiRequest<T>(url, {
       method: 'PUT',
       body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+      headers,
     }),
-  patch: <T>(url: string, body?: unknown) =>
+  patch: <T>(url: string, body?: unknown, headers?: Record<string, string>) =>
     apiRequest<T>(url, {
       method: 'PATCH',
       body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+      headers,
     }),
-  delete: <T>(url: string) => apiRequest<T>(url, { method: 'DELETE' }),
+  delete: <T>(url: string, headers?: Record<string, string>) =>
+    apiRequest<T>(url, { method: 'DELETE', headers }),
 };
 
 export const apiClient = api;

@@ -118,6 +118,28 @@ export class AppError extends Error {
     return new AppError(415, 'UNSUPPORTED_FILE', message);
   }
 
+  static insufficientStock(
+    message = 'Insufficient stock',
+    details?: Record<string, unknown>
+  ): AppError {
+    return new AppError(409, 'INSUFFICIENT_STOCK', message, details);
+  }
+
+  static productUnavailable(message = 'Product is untracked or unavailable'): AppError {
+    return new AppError(409, 'PRODUCT_UNAVAILABLE', message);
+  }
+
+  static settlementExceedsBalance(
+    message = 'Settlement amount cannot exceed outstanding balance',
+    details?: Record<string, unknown>
+  ): AppError {
+    return new AppError(422, 'SETTLEMENT_EXCEEDS_BALANCE', message, details);
+  }
+
+  static paymentDetailsRequired(message = 'Payment details required'): AppError {
+    return new AppError(422, 'PAYMENT_DETAILS_REQUIRED', message);
+  }
+
   static internal(message = 'An unexpected internal error occurred'): AppError {
     return new AppError(500, 'INTERNAL_ERROR', message);
   }
