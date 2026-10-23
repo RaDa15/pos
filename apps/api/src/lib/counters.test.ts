@@ -28,7 +28,6 @@ describe('Atomic Counters (lib/counters.ts)', () => {
       await prisma.counter.deleteMany({ where: { businessId: testBusinessId } });
       await prisma.business.delete({ where: { id: testBusinessId } });
     }
-    await prisma.$disconnect();
   });
 
   it('formats invoice counters with year and 5 digits', async () => {

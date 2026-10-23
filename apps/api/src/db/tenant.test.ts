@@ -88,7 +88,6 @@ describe('Tenant Isolation Extension (db/tenant.ts)', () => {
       await prisma.employee.deleteMany({ where: { businessId: { in: ids } } });
       await prisma.business.deleteMany({ where: { id: { in: ids } } });
     }
-    await prisma.$disconnect();
   });
 
   it('requires a non-empty businessId when instantiating tenant client', () => {

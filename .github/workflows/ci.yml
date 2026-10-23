@@ -31,6 +31,7 @@ jobs:
       PLATFORM_ADMIN_EMAIL: admin@pos.bt
       PLATFORM_ADMIN_PASSWORD: AdminPassword123!
       SESSION_SECRET: test-session-secret-at-least-32-chars-long
+      SEED_DEMO_BUSINESSES: 'true'
 
     steps:
       - name: Checkout code
