@@ -1,0 +1,829 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------------------------------------------------------------------------
+// Enums matching docs/06-BACKEND-SCHEMA.md §4
+// ---------------------------------------------------------------------------
+
+enum BusinessType {
+  grocery
+  restaurant
+
+  @@map("business_type")
+}
+
+enum PlanCode {
+  starter
+  professional
+  enterprise
+
+  @@map("plan_code")
+}
+
+enum SubscriptionStatus {
+  trial
+  active
+  suspended
+  cancelled
+
+  @@map("subscription_status")
+}
+
+enum SubscriptionEventType {
+  registered
+  plan_changed
+  payment_submitted
+  payment_verified
+  payment_rejected
+  cancelled
+  extended
+  suspended
+  reactivated
+
+  @@map("subscription_event_type")
+}
+
+enum SubscriptionPaymentMethod {
+  bank_transfer
+  mbob
+  mpay
+  tpay
+  dk_bank
+  other_wallet
+
+  @@map("subscription_payment_method")
+}
+
+enum SubscriptionPaymentStatus {
+  pending
+  verified
+  rejected
+
+  @@map("subscription_payment_status")
+}
+
+enum EmployeeRole {
+  admin
+  manager
+  cashier
+  accountant
+  inventory_officer
+  storekeeper
+  waiter
+  kitchen_staff
+
+  @@map("employee_role")
+}
+
+enum UiLanguage {
+  en
+  dz
+
+  @@map("ui_language")
+}
+
+enum TaxMode {
+  exclusive
+  inclusive
+
+  @@map("tax_mode")
+}
+
+enum TaxCategory {
+  standard
+  zero_rated
+  exempt
+
+  @@map("tax_category")
+}
+
+enum ProductUnit {
+  pc
+  kg
+  g
+  l
+  ml
+  plate
+  box
+
+  @@map("product_unit")
+}
+
+enum MovementType {
+  opening_stock
+  purchase
+  stock_in
+  stock_out
+  adjustment
+  sale
+  void_restock
+
+  @@map("movement_type")
+}
+
+enum CustomerType {
+  regular
+  vip
+  corporate
+  wholesale
+  retail
+  credit
+  government_institutional
+  online
+  delivery
+
+  @@map("customer_type")
+}
+
+enum OrderType {
+  walk_in
+  dine_in
+  takeaway
+  delivery
+  pre_ordered
+  pre_booked
+
+  @@map("order_type")
+}
+
+enum KitchenStatus {
+  new
+  accepted
+  preparing
+  ready
+  served
+  cancelled
+
+  @@map("kitchen_status")
+}
+
+enum SaleStatus {
+  completed
+  voided
+
+  @@map("sale_status")
+}
+
+enum BillDiscountType {
+  percent
+  amount
+
+  @@map("bill_discount_type")
+}
+
+enum PaymentMethod {
+  cash
+  card
+  mbob
+  mpay
+  dk_bank
+  tpay
+  other_wallet
+  bank
+  credit
+
+  @@map("payment_method")
+}
+
+enum PaymentKind {
+  sale
+  credit_settlement
+
+  @@map("payment_kind")
+}
+
+enum PaymentStatus {
+  completed
+  voided
+
+  @@map("payment_status")
+}
+
+enum ExpenseCategory {
+  rent
+  utilities
+  salaries
+  supplies
+  maintenance
+  marketing
+  other
+
+  @@map("expense_category")
+}
+
+enum ExpensePaymentMethod {
+  cash
+  card
+  bank_transfer
+  mobile_wallet
+  other
+
+  @@map("expense_payment_method")
+}
+
+enum CounterName {
+  invoice
+  kot
+  credit_settlement
+  purchase
+
+  @@map("counter_name")
+}
+
+// ---------------------------------------------------------------------------
+// Platform Models
+// ---------------------------------------------------------------------------
+
+model PlatformAdmin {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email              String    @unique
+  name               String
+  passwordHash       String    @map("password_hash")
+  totpSecretEnc      String?   @map("totp_secret_enc")
+  totpEnabled        Boolean   @default(false) @map("totp_enabled")
+  mustChangePassword Boolean   @default(true) @map("must_change_password")
+  active             Boolean   @default(true)
+  lastLoginAt        DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  subscriptionEvents   SubscriptionEvent[]
+  subscriptionPayments SubscriptionPayment[]
+  auditLogs            AuditLog[]
+
+  @@map("platform_admins")
+}
+
+model Business {
+  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessCode       String       @unique @map("business_code")
+  name               String
+  nameKey            String       @unique @map("name_key")
+  type               BusinessType
+  ownerName          String       @map("owner_name")
+  phone              String
+  email              String
+  address            String?
+  gstNo              String?      @map("gst_no")
+  gstRegistered      Boolean      @default(false) @map("gst_registered")
+  logoPath           String?      @map("logo_path")
+  passwordHash       String       @map("password_hash")
+  mustChangePassword Boolean      @default(false) @map("must_change_password")
+  isDemo             Boolean      @default(false) @map("is_demo")
+  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  subscription          Subscription?
+  subscriptionEvents    SubscriptionEvent[]
+  subscriptionPayments  SubscriptionPayment[]
+  employees             Employee[]
+  taxRates              TaxRate[]
+  products              Product[]
+  stockMovements        StockMovement[]
+  suppliers             Supplier[]
+  purchases             Purchase[]
+  purchaseItems         PurchaseItem[]
+  customers             Customer[]
+  customerTypeDiscounts CustomerTypeDiscount[]
+  sales                 Sale[]
+  saleItems             SaleItem[]
+  payments              Payment[]
+  counters              Counter[]
+  kitchenOrders         KitchenOrder[]
+  kitchenOrderItems     KitchenOrderItem[]
+  heldOrders            HeldOrder[]
+  expenses              Expense[]
+  auditLogs             AuditLog[]
+  idempotencyKeys       IdempotencyKey[]
+
+  @@map("businesses")
+}
+
+model Subscription {
+  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId String             @unique @map("business_id") @db.Uuid
+  business   Business           @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  plan       PlanCode
+  status     SubscriptionStatus @default(trial)
+  startedAt  DateTime           @default(now()) @map("started_at") @db.Timestamptz
+  expiresAt  DateTime           @map("expires_at") @db.Timestamptz
+  createdAt  DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("subscriptions")
+}
+
+model SubscriptionEvent {
+  id                    String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId            String                @map("business_id") @db.Uuid
+  business              Business              @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  event                 SubscriptionEventType
+  plan                  PlanCode?
+  amount                Decimal?              @db.Decimal(12, 2)
+  detail                String?
+  actorEmployeeId       String?               @map("actor_employee_id") @db.Uuid
+  actorEmployee         Employee?             @relation(fields: [actorEmployeeId], references: [id], onDelete: SetNull)
+  actorPlatformAdminId  String?               @map("actor_platform_admin_id") @db.Uuid
+  actorPlatformAdmin    PlatformAdmin?        @relation(fields: [actorPlatformAdminId], references: [id], onDelete: SetNull)
+  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([businessId, createdAt(sort: Desc)])
+  @@map("subscription_events")
+}
+
+model SubscriptionPayment {
+  id           String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId   String                    @map("business_id") @db.Uuid
+  business     Business                  @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  plan         PlanCode
+  amount       Decimal                   @db.Decimal(12, 2)
+  method       SubscriptionPaymentMethod
+  bankName     String?                   @map("bank_name")
+  reference    String
+  paidOn       DateTime                  @map("paid_on") @db.Date
+  status       SubscriptionPaymentStatus @default(pending)
+  submittedBy  String                    @map("submitted_by") @db.Uuid
+  submitter    Employee                  @relation("SubmittedSubscriptionPayments", fields: [submittedBy], references: [id], onDelete: Restrict)
+  reviewedBy   String?                   @map("reviewed_by") @db.Uuid
+  reviewer     PlatformAdmin?            @relation(fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewedAt   DateTime?                 @map("reviewed_at") @db.Timestamptz
+  rejectReason String?                   @map("reject_reason")
+  createdAt    DateTime                  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([status, createdAt])
+  @@index([businessId, createdAt(sort: Desc)])
+  @@map("subscription_payments")
+}
+
+// ---------------------------------------------------------------------------
+// Identity Models
+// ---------------------------------------------------------------------------
+
+model Employee {
+  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId         String       @map("business_id") @db.Uuid
+  business           Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  username           String
+  usernameKey        String       @map("username_key")
+  name               String
+  role               EmployeeRole
+  passwordHash       String       @map("password_hash")
+  mustChangePassword Boolean      @default(false) @map("must_change_password")
+  language           UiLanguage   @default(en)
+  active             Boolean      @default(true)
+  failedLoginCount   Int          @default(0) @map("failed_login_count")
+  lockedUntil        DateTime?    @map("locked_until") @db.Timestamptz
+  lastLoginAt        DateTime?    @map("last_login_at") @db.Timestamptz
+  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  subscriptionEvents           SubscriptionEvent[]
+  submittedPayments            SubscriptionPayment[] @relation("SubmittedSubscriptionPayments")
+  createdStockMovements        StockMovement[]
+  createdPurchases             Purchase[]
+  salesCashier                 Sale[]                @relation("SaleCashier")
+  salesVoided                  Sale[]                @relation("SaleVoider")
+  paymentsCreated              Payment[]
+  kitchenOrdersCreated         KitchenOrder[]
+  heldOrdersCreated            HeldOrder[]
+  expensesCreated              Expense[]
+  auditLogs                    AuditLog[]
+
+  @@unique([businessId, usernameKey])
+  @@index([businessId, role, active])
+  @@map("employees")
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue & Stock Models
+// ---------------------------------------------------------------------------
+
+model TaxRate {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId    String      @map("business_id") @db.Uuid
+  business      Business    @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  name          String
+  rate          Decimal     @db.Decimal(5, 2)
+  mode          TaxMode     @default(exclusive)
+  category      TaxCategory @default(standard)
+  effectiveDate DateTime    @map("effective_date") @db.Date
+  active        Boolean     @default(true)
+  isDefault     Boolean     @default(false) @map("is_default")
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  products Product[]
+
+  @@index([businessId, active])
+  @@map("tax_rates")
+}
+
+model Product {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId    String      @map("business_id") @db.Uuid
+  business      Business    @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  name          String
+  category      String      @default("Uncategorized")
+  barcode       String
+  imagePath     String?     @map("image_path")
+  purchasePrice Decimal     @default(0) @map("purchase_price") @db.Decimal(12, 2)
+  sellPrice     Decimal     @map("sell_price") @db.Decimal(12, 2)
+  taxRateId     String      @map("tax_rate_id") @db.Uuid
+  taxRate       TaxRate     @relation(fields: [taxRateId], references: [id], onDelete: Restrict)
+  unit          ProductUnit @default(pc)
+  trackStock    Boolean     @default(true) @map("track_stock")
+  stock         Int         @default(0)
+  minStock      Int         @default(0) @map("min_stock")
+  supplierId    String?     @map("supplier_id") @db.Uuid
+  supplier      Supplier?   @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  batchNo       String?     @map("batch_no")
+  expiryDate    DateTime?   @map("expiry_date") @db.Date
+  active        Boolean     @default(true)
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  stockMovements     StockMovement[]
+  purchaseItems      PurchaseItem[]
+  saleItems          SaleItem[]
+  kitchenOrderItems  KitchenOrderItem[]
+
+  @@unique([businessId, barcode])
+  @@index([businessId, active, name])
+  @@index([businessId, category])
+  @@map("products")
+}
+
+model StockMovement {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId  String       @map("business_id") @db.Uuid
+  business    Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  productId   String       @map("product_id") @db.Uuid
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  type        MovementType
+  qty         Int
+  stockAfter  Int          @map("stock_after")
+  reason      String?
+  saleId      String?      @map("sale_id") @db.Uuid
+  sale        Sale?        @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  purchaseId  String?      @map("purchase_id") @db.Uuid
+  purchase    Purchase?    @relation(fields: [purchaseId], references: [id], onDelete: SetNull)
+  createdBy   String?      @map("created_by") @db.Uuid
+  creator     Employee?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([businessId, productId, createdAt(sort: Desc)])
+  @@index([businessId, createdAt(sort: Desc)])
+  @@map("stock_movements")
+}
+
+model Supplier {
+  id                  String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId          String     @map("business_id") @db.Uuid
+  business            Business   @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  name                String
+  phone               String?
+  email               String?
+  address             String?
+  notes               String?
+  openingPaid         Decimal    @default(0) @map("opening_paid") @db.Decimal(12, 2)
+  openingOutstanding  Decimal    @default(0) @map("opening_outstanding") @db.Decimal(12, 2)
+  active              Boolean    @default(true)
+  createdAt           DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+
+  products  Product[]
+  purchases Purchase[]
+
+  @@map("suppliers")
+}
+
+model Purchase {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId   String         @map("business_id") @db.Uuid
+  business     Business       @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  purchaseNo   String         @map("purchase_no")
+  supplierId   String         @map("supplier_id") @db.Uuid
+  supplier     Supplier       @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  purchaseDate DateTime       @map("purchase_date") @db.Date
+  total        Decimal        @db.Decimal(12, 2)
+  amountPaid   Decimal        @default(0) @map("amount_paid") @db.Decimal(12, 2)
+  note         String?
+  createdBy    String         @map("created_by") @db.Uuid
+  creator      Employee       @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  items          PurchaseItem[]
+  stockMovements StockMovement[]
+
+  @@unique([businessId, purchaseNo])
+  @@index([businessId, supplierId, purchaseDate(sort: Desc)])
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchaseId String    @map("purchase_id") @db.Uuid
+  purchase   Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  businessId String    @map("business_id") @db.Uuid
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  productId  String    @map("product_id") @db.Uuid
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  qty        Int
+  unitCost   Decimal   @map("unit_cost") @db.Decimal(12, 2)
+  lineTotal  Decimal   @map("line_total") @db.Decimal(12, 2)
+  batchNo    String?   @map("batch_no")
+  expiryDate DateTime? @map("expiry_date") @db.Date
+
+  @@index([purchaseId])
+  @@index([businessId, productId])
+  @@map("purchase_items")
+}
+
+// ---------------------------------------------------------------------------
+// Customers Models
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId         String       @map("business_id") @db.Uuid
+  business           Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  name               String
+  type               CustomerType @default(regular)
+  phone              String?
+  email              String?
+  address            String?
+  gstId              String?      @map("gst_id")
+  creditLimit        Decimal?     @map("credit_limit") @db.Decimal(12, 2)
+  totalSpent         Decimal      @default(0) @map("total_spent") @db.Decimal(12, 2)
+  outstandingBalance Decimal      @default(0) @map("outstanding_balance") @db.Decimal(12, 2)
+  notes              String?
+  active             Boolean      @default(true)
+  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  sales         Sale[]
+  payments      Payment[]
+  kitchenOrders KitchenOrder[]
+
+  @@index([businessId, active, name])
+  @@index([businessId, phone])
+  @@map("customers")
+}
+
+model CustomerTypeDiscount {
+  businessId   String       @map("business_id") @db.Uuid
+  business     Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  customerType CustomerType @map("customer_type")
+  discountPct  Decimal      @default(0) @map("discount_pct") @db.Decimal(5, 2)
+  updatedAt    DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@id([businessId, customerType])
+  @@map("customer_type_discounts")
+}
+
+// ---------------------------------------------------------------------------
+// Sales Models
+// ---------------------------------------------------------------------------
+
+model Sale {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId        String            @map("business_id") @db.Uuid
+  business          Business          @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  invoiceNo         String            @map("invoice_no")
+  invoiceYear       Int               @map("invoice_year")
+  invoiceSeq        Int               @map("invoice_seq")
+  status            SaleStatus        @default(completed)
+  completedAt       DateTime          @default(now()) @map("completed_at") @db.Timestamptz
+  businessDate      DateTime          @map("business_date") @db.Date
+  cashierId         String            @map("cashier_id") @db.Uuid
+  cashier           Employee          @relation("SaleCashier", fields: [cashierId], references: [id], onDelete: Restrict)
+  customerId        String?           @map("customer_id") @db.Uuid
+  customer          Customer?         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customerType      CustomerType?     @map("customer_type")
+  orderType         OrderType         @map("order_type")
+  tableNo           String?           @map("table_no")
+  kitchenOrderId    String?           @unique @map("kitchen_order_id") @db.Uuid
+  kitchenOrder      KitchenOrder?     @relation("KitchenOrderSale", fields: [kitchenOrderId], references: [id], onDelete: Restrict)
+  gstRegistered     Boolean           @map("gst_registered")
+  subtotal          Decimal           @db.Decimal(12, 2)
+  discountTotal     Decimal           @default(0) @map("discount_total") @db.Decimal(12, 2)
+  customerTypePct   Decimal           @default(0) @map("customer_type_pct") @db.Decimal(5, 2)
+  customerTypeAmt   Decimal           @default(0) @map("customer_type_amt") @db.Decimal(12, 2)
+  billDiscountType  BillDiscountType? @map("bill_discount_type")
+  billDiscountValue Decimal           @default(0) @map("bill_discount_value") @db.Decimal(12, 2)
+  billDiscountAmt   Decimal           @default(0) @map("bill_discount_amt") @db.Decimal(12, 2)
+  taxableAmount     Decimal           @map("taxable_amount") @db.Decimal(12, 2)
+  taxAmount         Decimal           @map("tax_amount") @db.Decimal(12, 2)
+  charges           Decimal           @default(0) @db.Decimal(12, 2)
+  total             Decimal           @db.Decimal(12, 2)
+  amountPaid        Decimal           @map("amount_paid") @db.Decimal(12, 2)
+  creditAmount      Decimal           @default(0) @map("credit_amount") @db.Decimal(12, 2)
+  paymentSummary    String            @map("payment_summary")
+  voidedAt          DateTime?         @map("voided_at") @db.Timestamptz
+  voidedBy          String?           @map("voided_by") @db.Uuid
+  voider            Employee?         @relation("SaleVoider", fields: [voidedBy], references: [id], onDelete: SetNull)
+  voidReason        String?           @map("void_reason")
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz
+
+  items               SaleItem[]
+  payments            Payment[]
+  stockMovements      StockMovement[]
+  kitchenOrdersBilled KitchenOrder[]  @relation("SaleBilledOrders")
+
+  @@unique([businessId, invoiceNo])
+  @@unique([businessId, invoiceYear, invoiceSeq])
+  @@index([businessId, businessDate])
+  @@index([businessId, status, completedAt])
+  @@index([businessId, customerId, completedAt(sort: Desc)])
+  @@index([businessId, cashierId, businessDate])
+  @@map("sales")
+}
+
+model SaleItem {
+  id                String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleId            String       @map("sale_id") @db.Uuid
+  sale              Sale         @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  businessId        String       @map("business_id") @db.Uuid
+  business          Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  lineNo            Int          @map("line_no")
+  productId         String       @map("product_id") @db.Uuid
+  product           Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  name              String
+  barcode           String
+  category          String
+  unitPrice         Decimal      @map("unit_price") @db.Decimal(12, 2)
+  qty               Int
+  lineDiscount      Decimal      @default(0) @map("line_discount") @db.Decimal(12, 2)
+  allocatedDiscount Decimal      @default(0) @map("allocated_discount") @db.Decimal(12, 2)
+  taxRate           Decimal      @map("tax_rate") @db.Decimal(5, 2)
+  taxMode           TaxMode      @map("tax_mode")
+  taxCategory       TaxCategory  @map("tax_category")
+  taxable           Decimal      @db.Decimal(12, 2)
+  tax               Decimal      @db.Decimal(12, 2)
+  total             Decimal      @db.Decimal(12, 2)
+  unitCost          Decimal      @default(0) @map("unit_cost") @db.Decimal(12, 2)
+  trackStock        Boolean      @map("track_stock")
+
+  @@unique([saleId, lineNo])
+  @@index([businessId, productId])
+  @@map("sale_items")
+}
+
+model Payment {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId   String        @map("business_id") @db.Uuid
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  kind         PaymentKind
+  saleId       String?       @map("sale_id") @db.Uuid
+  sale         Sale?         @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  receiptNo    String?       @map("receipt_no")
+  customerId   String?       @map("customer_id") @db.Uuid
+  customer     Customer?     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  method       PaymentMethod
+  amount       Decimal       @db.Decimal(12, 2)
+  cashReceived Decimal?      @map("cash_received") @db.Decimal(12, 2)
+  changeGiven  Decimal?      @map("change_given") @db.Decimal(12, 2)
+  fee          Decimal       @default(0) @db.Decimal(12, 2)
+  bankName     String?       @map("bank_name")
+  journalNo    String?       @map("journal_no")
+  remarks      String?
+  status       PaymentStatus @default(completed)
+  businessDate DateTime      @map("business_date") @db.Date
+  createdBy    String        @map("created_by") @db.Uuid
+  creator      Employee      @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  voidedAt     DateTime?     @map("voided_at") @db.Timestamptz
+
+  @@index([businessId, businessDate, status])
+  @@index([businessId, saleId])
+  @@index([businessId, customerId, kind])
+  @@map("payments")
+}
+
+model Counter {
+  businessId String      @map("business_id") @db.Uuid
+  business   Business    @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  name       CounterName
+  year       Int         @default(0)
+  value      Int         @default(0)
+
+  @@id([businessId, name, year])
+  @@map("counters")
+}
+
+model KitchenOrder {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId      String        @map("business_id") @db.Uuid
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  orderNo         String        @map("order_no")
+  orderType       OrderType     @map("order_type")
+  tableNo         String?       @map("table_no")
+  note            String?
+  status          KitchenStatus @default(new)
+  billed          Boolean       @default(false)
+  saleId          String?       @map("sale_id") @db.Uuid
+  sale            Sale?         @relation("SaleBilledOrders", fields: [saleId], references: [id], onDelete: Restrict)
+  directSale      Sale?         @relation("KitchenOrderSale")
+  customerId      String?       @map("customer_id") @db.Uuid
+  customer        Customer?     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  createdBy       String        @map("created_by") @db.Uuid
+  creator         Employee      @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  statusChangedAt DateTime      @default(now()) @map("status_changed_at") @db.Timestamptz
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  items KitchenOrderItem[]
+
+  @@unique([businessId, orderNo])
+  @@index([businessId, status, createdAt])
+  @@map("kitchen_orders")
+}
+
+model KitchenOrderItem {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kitchenOrderId String       @map("kitchen_order_id") @db.Uuid
+  kitchenOrder   KitchenOrder @relation(fields: [kitchenOrderId], references: [id], onDelete: Cascade)
+  businessId     String       @map("business_id") @db.Uuid
+  business       Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  productId      String       @map("product_id") @db.Uuid
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  name           String
+  qty            Int
+
+  @@index([kitchenOrderId])
+  @@index([businessId, productId])
+  @@map("kitchen_order_items")
+}
+
+model HeldOrder {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId String   @map("business_id") @db.Uuid
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  label      String
+  payload    Json
+  createdBy  String   @map("created_by") @db.Uuid
+  creator    Employee @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([businessId, createdAt])
+  @@map("held_orders")
+}
+
+model Expense {
+  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId    String               @map("business_id") @db.Uuid
+  business      Business             @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  name          String
+  category      ExpenseCategory
+  amount        Decimal              @db.Decimal(12, 2)
+  businessDate  DateTime             @map("business_date") @db.Date
+  paymentMethod ExpensePaymentMethod @default(cash) @map("payment_method")
+  description   String?
+  createdBy     String               @map("created_by") @db.Uuid
+  creator       Employee             @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  createdAt     DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime             @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([businessId, businessDate])
+  @@map("expenses")
+}
+
+model AuditLog {
+  id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId           String?        @map("business_id") @db.Uuid
+  business             Business?      @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  actorEmployeeId      String?        @map("actor_employee_id") @db.Uuid
+  actorEmployee        Employee?      @relation(fields: [actorEmployeeId], references: [id], onDelete: SetNull)
+  actorPlatformAdminId String?        @map("actor_platform_admin_id") @db.Uuid
+  actorPlatformAdmin   PlatformAdmin? @relation(fields: [actorPlatformAdminId], references: [id], onDelete: SetNull)
+  actorName            String         @map("actor_name")
+  action               String
+  entityType           String?        @map("entity_type")
+  entityId             String?        @map("entity_id")
+  detail               String?
+  createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([businessId, createdAt(sort: Desc)])
+  @@index([businessId, action, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+model IdempotencyKey {
+  businessId String   @map("business_id") @db.Uuid
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  key        String
+  employeeId String   @map("employee_id") @db.Uuid
+  route      String
+  statusCode Int      @map("status_code")
+  response   Json
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@id([businessId, key])
+  @@map("idempotency_keys")
+}

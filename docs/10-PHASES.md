@@ -55,11 +55,11 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 1
 - **Tasks:**
-  - [ ] `schema.prisma` with every table, enum, index and relation in `06-BACKEND-SCHEMA.md`
-  - [ ] Raw SQL migrations: extensions, `sessions` table, partial unique indexes, check constraints
-  - [ ] `db/tenant.ts` Prisma extension that enforces `businessId` (`04-ARCHITECTURE.md` §5) with tests
-  - [ ] `lib/counters.ts` `nextNumber` with a concurrency test (50 parallel calls → 50 distinct, gapless numbers)
-  - [ ] `seed.ts`: platform admin; demo businesses when `SEED_DEMO_BUSINESSES=true` and not production; rice/oil/salt exempt; plate items untracked. For now seed only catalogue, customers, suppliers and expenses; 30 days of sales history is added in Phase 7 once `completeSale` exists
+  - [x] `schema.prisma` with every table, enum, index and relation in `06-BACKEND-SCHEMA.md`
+  - [x] Raw SQL migrations: extensions, `sessions` table, partial unique indexes, check constraints
+  - [x] `db/tenant.ts` Prisma extension that enforces `businessId` (`04-ARCHITECTURE.md` §5) with tests
+  - [x] `lib/counters.ts` `nextNumber` with a concurrency test (50 parallel calls → 50 distinct, gapless numbers)
+  - [x] `seed.ts`: platform admin; demo businesses when `SEED_DEMO_BUSINESSES=true` and not production; rice/oil/salt exempt; plate items untracked. For now seed only catalogue, customers, suppliers and expenses; 30 days of sales history is added in Phase 7 once `completeSale` exists
 - **Deliverables:** migrations + seed.
 - **Acceptance:** AC-66 (catalogue part).
 
