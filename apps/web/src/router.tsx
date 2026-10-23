@@ -25,6 +25,11 @@ import { SuppliersScreen } from './screens/SuppliersScreen.js';
 // Phase 7 Screen: SCR-08 POS
 import { PosScreen } from './screens/PosScreen.js';
 
+// Phase 8 Screens: SCR-14 Invoices, SCR-09 Receipt, SCR-15 Payments
+import { InvoicesScreen } from './screens/InvoicesScreen.js';
+import { ReceiptScreen } from './screens/ReceiptScreen.js';
+import { PaymentsScreen } from './screens/PaymentsScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -91,12 +96,7 @@ export const router = createBrowserRouter([
         path: '/app/sales/:id',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-09"
-              title="Receipt Viewer"
-              description="View, 80mm thermal print, PDF download, and invoice voiding with stock restoration."
-              phaseNumber={7}
-            />
+            <ReceiptScreen />
           </ProtectedRoute>
         ),
       },
@@ -108,7 +108,7 @@ export const router = createBrowserRouter([
               screenId="SCR-10"
               title="Kitchen Orders Board"
               description="Live KOT orders board with columns for New, Accepted, Preparing, and Ready tickets."
-              phaseNumber={8}
+              phaseNumber={9}
             />
           </ProtectedRoute>
         ),
@@ -146,12 +146,7 @@ export const router = createBrowserRouter([
         path: '/app/sales',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-14"
-              title="Invoices & Sales History"
-              description="Search, view, filter, and inspect past tax invoices and customer receipts."
-              phaseNumber={7}
-            />
+            <InvoicesScreen />
           </ProtectedRoute>
         ),
       },
@@ -159,12 +154,15 @@ export const router = createBrowserRouter([
         path: '/app/reports/payments',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-15"
-              title="Payments Report"
-              description="Daily breakdown by payment method: Cash, mBoB, mPay, TPay, DK Bank, and Credit."
-              phaseNumber={9}
-            />
+            <PaymentsScreen />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/payments',
+        element: (
+          <ProtectedRoute>
+            <PaymentsScreen />
           </ProtectedRoute>
         ),
       },

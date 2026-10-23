@@ -729,18 +729,134 @@ salesRouter.post('/', requirePermission('pos.sell'), async (req: Request, res: R
 });
 
 /**
+ * GET /sales
+ * Invoices list with search, date range, status filters, and pagination.
+ * Waiter: own sales only (07-API-SPEC.md §3.10).
+ */
+salesRouter.get('/', requirePermission('sales.view'), async (req: Request, res: Response) => {
+  const businessId = req.business!.id;
+  const employee = req.employee!;
+  const { from, to, q, status, page = '1', limit = '50' } = req.query;
+
+  const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+  const take = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 50));
+  const skip = (pageNum - 1) * take;
+
+  const where: Prisma.SaleWhereInput = {
+    businessId,
+  };
+
+  // Waiter can only see own sales per 07-API-SPEC.md §3.10
+  if (employee.role === 'waiter') {
+    where.cashierId = employee.id;
+  }
+
+  if (status && (status === 'completed' || status === 'voided')) {
+    where.status = status as SaleStatus;
+  }
+
+  if (from || to) {
+    where.completedAt = {};
+    if (from && typeof from === 'string') {
+      const fromDate = new Date(from);
+      if (!isNaN(fromDate.getTime())) {
+        where.completedAt.gte = fromDate;
+      }
+    }
+    if (to && typeof to === 'string') {
+      const toDate = new Date(to);
+      if (!isNaN(toDate.getTime())) {
+        where.completedAt.lte = toDate;
+      }
+    }
+  }
+
+  if (q && typeof q === 'string' && q.trim()) {
+    const search = q.trim();
+    where.OR = [
+      { invoiceNo: { contains: search, mode: 'insensitive' } },
+      { customer: { name: { contains: search, mode: 'insensitive' } } },
+    ];
+  }
+
+  const [total, sales] = await Promise.all([
+    prisma.sale.count({ where }),
+    prisma.sale.findMany({
+      where,
+      orderBy: { completedAt: 'desc' },
+      skip,
+      take,
+      include: {
+        cashier: { select: { id: true, name: true } },
+        customer: { select: { id: true, name: true, phone: true, type: true } },
+        voider: { select: { id: true, name: true } },
+        _count: { select: { items: true } },
+      },
+    }),
+  ]);
+
+  const items = sales.map((s) => ({
+    id: s.id,
+    invoiceNo: s.invoiceNo,
+    completedAt: s.completedAt.toISOString(),
+    businessDate: s.businessDate.toISOString().slice(0, 10),
+    cashier: s.cashier,
+    customer: s.customer,
+    orderType: s.orderType,
+    tableNo: s.tableNo,
+    status: s.status,
+    subtotal: Number(s.subtotal),
+    discountTotal: Number(s.discountTotal),
+    taxableAmount: Number(s.taxableAmount),
+    taxAmount: Number(s.taxAmount),
+    charges: Number(s.charges),
+    total: Number(s.total),
+    amountPaid: Number(s.amountPaid),
+    creditAmount: Number(s.creditAmount),
+    paymentSummary: s.paymentSummary,
+    itemCount: s._count.items,
+    voided:
+      s.status === 'voided'
+        ? {
+            at: s.voidedAt?.toISOString() || s.completedAt.toISOString(),
+            by: s.voider,
+            reason: s.voidReason,
+          }
+        : null,
+  }));
+
+  res.json({
+    data: items,
+    meta: {
+      total,
+      page: pageNum,
+      limit: take,
+      pages: Math.ceil(total / take) || 1,
+    },
+  });
+});
+
+/**
  * GET /sales/:id
  * Retrieve single sale for receipt printing or inspection.
  */
-salesRouter.get('/:id', async (req: Request, res: Response) => {
+salesRouter.get('/:id', requirePermission('sales.view'), async (req: Request, res: Response) => {
   const businessId = req.business!.id;
   const saleId = req.params.id as string;
+  const employee = req.employee!;
+
+  const where: Prisma.SaleWhereInput = {
+    id: saleId,
+    businessId,
+  };
+
+  // Waiter can only see own sales
+  if (employee.role === 'waiter') {
+    where.cashierId = employee.id;
+  }
 
   const sale = await prisma.sale.findFirst({
-    where: {
-      id: saleId,
-      businessId,
-    },
+    where,
     include: {
       cashier: { select: { id: true, name: true } },
       customer: { select: { id: true, name: true, phone: true, type: true, gstId: true } },

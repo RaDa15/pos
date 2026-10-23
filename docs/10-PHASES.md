@@ -135,9 +135,9 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 7
 - **Tasks:**
-  - [ ] `GET /sales` with search and filters; SCR-14
-  - [ ] `POST /sales/:id/void` per BR-24; void modal and VOID stamp on SCR-09
-  - [ ] Payments report API (completed only, credit separate — BR-31), CSV export, SCR-15
+  - [x] `GET /sales` with search and filters; SCR-14
+  - [x] `POST /sales/:id/void` per BR-24; void modal and VOID stamp on SCR-09
+  - [x] Payments report API (completed only, credit separate — BR-31), CSV export, SCR-15
 - **Deliverables:** invoice management and payment reconciliation.
 - **Acceptance:** AC-41, AC-42, AC-46.
 

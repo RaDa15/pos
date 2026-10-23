@@ -6,11 +6,11 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 5 — Catalogue & settings |
-| Status | Phase 4 completed, Phase 5 ready |
+| Current phase | Phase 9 — Kitchen orders |
+| Status | Phase 8 completed, Phase 9 ready |
 | Last updated | 2026-10-23 |
-| Next step | Phase 5: Tax rates API & Settings, business profile, customer discounts, products API & CSV template |
-| Blockers | None for Phases 0–5. Open questions in `docs/README.md` must be answered before the phases marked there |
+| Next step | Phase 9: Kitchen orders API with KOT-NNNN, state machine, billable list, SCR-10 kitchen board, POS kitchen integration |
+| Blockers | None for Phases 0–9. Open questions in `docs/README.md` must be answered before the phases marked there |
 
 ## Phase progress
 
@@ -21,10 +21,10 @@ The project's living log. AI sessions forget everything between chats; this file
 | 2 Database & seed | Done | AC-66 passed; all 22 models, 23 enums, raw SQL constraints, tenant isolation tests, atomic counters 50-call concurrency test, demo seed verified |
 | 3 Auth, registration, employees, tenancy | Done | AC-01..03, AC-08..14, AC-58..60, AC-62, AC-63 passed; CSRF, lockout, sessions, employee CRUD, tenant isolation harness, web screens SCR-01 to SCR-06 |
 | 4 App shell, design system & i18n | Done | AC-65, AC-68, AC-69 passed; tokens/base/print CSS, components with /dev/components catalog, AppShell, AuthLayout, PlatformLayout, role/plan nav filters, i18next en/dz |
-| 5 Catalogue & settings | Not started | — |
-| 6 Inventory, customers & suppliers | Not started | — |
-| 7 POS & receipts | Not started | — |
-| 8 Invoices, void & payments | Not started | — |
+| 5 Catalogue & settings | Done | AC-17..21, AC-52, AC-53 passed; tax rates, business profile & sharp WebP upload, customer discounts, products CRUD & RFC 4180 CSV |
+| 6 Inventory, customers & suppliers | Done | AC-22..24, AC-49, AC-50 passed; stock movements & alerts, customer credit & settlements (CR-NNNN), suppliers |
+| 7 POS & receipts | Done | AC-26..36, AC-39, AC-40, AC-48, AC-61 passed; checkout, INV sequence, held orders, jsPDF 80mm receipt |
+| 8 Invoices, void & payments | Done | AC-41, AC-42, AC-46 passed; invoices search/filters, role-gated void with restock/balance rollback/KOT unbill, payments report & CSV export |
 | 9 Kitchen orders | Not started | — |
 | 10 Dashboard, reports & expenses | Not started | — |
 | 11 Subscription, plans & platform admin | Not started | — |
@@ -168,4 +168,15 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
   - Receipt Modal `SCR-09` (`ReceiptModal.tsx`): 80 mm thermal print layout (`@media print`), barcode indicator, and jsPDF 80 mm ticket download (`AC-40`).
   - Seed expansion: 30 days of realistic sales generated for demo businesses using `computeSale` domain logic (`F-25`).
   - Integration tests: 10 tests in `apps/api/src/routes/sales.test.ts` covering `AC-26`–`AC-36`, `AC-39`, `AC-40`, `AC-48`. All 10 passed; 116 tests passing across monorepo.
-  - Next: Phase 8 — Invoices, void & payments.
+- 2026-10-23 — **Phase 8 (Invoices, void & payments) completed**:
+  - Invoices search & filters API (`GET /sales` with `q` matching invoice number or customer name, `from`/`to` date range, `status` filter, pagination, and waiter-only scoping per `AC-41` and `07-API-SPEC.md`).
+  - Invoice void API (`POST /sales/:id/void`) per `BR-24`: Admin/Manager role gated (`AC-42`, returns 403 for Cashier and Accountant), requires reason string, changes status to `voided`, generates `void_restock` movements for tracked products while leaving untracked products untouched (`AC-41`), cancels payments, rolls back customer balance and spent amounts, un-bills linked kitchen orders (`billed = false`, status stays `served`), and records an audit log.
+  - Payments reconciliation report API (`GET /payments` per `BR-31`, `AC-46`): includes completed payments only (voided excluded from cards and totals), separates credit lines as "On credit", counts credit settlements on the day paid as money received, and breaks down totals by method (`cash`, `mbob`, `mpay`, `tpay`, `card`, `other_wallet`, `bank`).
+  - RFC 4180 CSV export (`GET /payments/export.csv`) with UTF-8 BOM and formula injection protection.
+  - Frontend screens:
+    - `InvoicesScreen.tsx` (`SCR-14` at `/app/sales`): search input, date range filters, status selector, responsive data table with formatted currency, status badges, and View/Void actions.
+    - `ReceiptScreen.tsx` (`SCR-09` standalone viewer at `/app/sales/:id`) and updated `ReceiptModal.tsx`: prominent diagonal `VOID` watermark stamp (`AC-41`), void details banner (`Voided <datetime> by <name>: <reason>`), and void confirmation modal with reason validation.
+    - `PaymentsScreen.tsx` (`SCR-15` at `/app/reports/payments` and `/app/payments`): date preset selectors (today, yesterday, 7 days, this month, this year, custom), KPI cards (Total Received, Cash, mBoB, mPay, T-Pay, On Credit, Settlements), payments table, and CSV download trigger.
+  - Tests: 4 integration tests in `apps/api/src/routes/invoices-payments.test.ts` verifying `GET /sales` filters, `AC-42` role permissions, `AC-41` void behavior (restock, balance rollback, KOT unbill, receipt VOID stamp), and `AC-46` payment reconciliation and CSV export.
+  - 120/120 tests passing across monorepo (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 77).
+  - Next: Phase 9 — Kitchen orders.
