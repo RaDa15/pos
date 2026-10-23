@@ -15,3 +15,7 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - prisma
   - argon2
+
+overrides:
+  deepmerge-ts: ^8.0.0
+

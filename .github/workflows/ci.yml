@@ -11,6 +11,27 @@ jobs:
     name: Lint, Typecheck & Test
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: pos
+          POSTGRES_PASSWORD: pos_dev_pass
+          POSTGRES_DB: pos_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://pos:pos_dev_pass@localhost:5432/pos_dev?schema=public
+      PLATFORM_ADMIN_EMAIL: admin@pos.bt
+      PLATFORM_ADMIN_PASSWORD: AdminPassword123!
+      SESSION_SECRET: test-session-secret-at-least-32-chars-long
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,11 +53,20 @@ jobs:
       - name: Build shared package
         run: pnpm --filter @pos/shared build
 
+      - name: Generate Prisma client
+        run: pnpm --filter @pos/api db:generate
+
       - name: Run linter
         run: pnpm lint
 
       - name: Run typecheck
         run: pnpm typecheck
+
+      - name: Deploy database migrations
+        run: pnpm --filter @pos/api db:deploy
+
+      - name: Seed test database
+        run: pnpm --filter @pos/api db:seed
 
       - name: Run unit & integration tests
         run: pnpm test
