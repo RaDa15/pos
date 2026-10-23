@@ -1,0 +1,88 @@
+# Memory — POS SYSTEM
+
+The project's living log. AI sessions forget everything between chats; this file is how the next session knows where things stand. Read it first; update it after every task (`12-RULES.md` §10).
+
+## Current status
+
+| Item | Value |
+|---|---|
+| Current phase | Phase 0 — Setup |
+| Status | Not started (planning docs complete) |
+| Last updated | 2026-10-23 |
+| Next step | First task of Phase 0: initialise git with `prototype/` unchanged, then create the pnpm workspace |
+| Blockers | None for Phases 0–4. Open questions in `docs/README.md` must be answered before the phases marked there |
+
+## Phase progress
+
+| Phase | Status | Acceptance |
+|---|---|---|
+| 0 Setup | Not started | — |
+| 1 Shared domain engine | Not started | — |
+| 2 Database & seed | Not started | — |
+| 3 Auth, registration, employees, tenancy | Not started | — |
+| 4 App shell, design system & i18n | Not started | — |
+| 5 Catalogue & settings | Not started | — |
+| 6 Inventory, customers & suppliers | Not started | — |
+| 7 POS & receipts | Not started | — |
+| 8 Invoices, void & payments | Not started | — |
+| 9 Kitchen orders | Not started | — |
+| 10 Dashboard, reports & expenses | Not started | — |
+| 11 Subscription, plans & platform admin | Not started | — |
+| 12 Purchases & data import/export | Not started | — |
+| 13 Testing & hardening | Not started | — |
+| 14 Deploy & pilot | Not started | — |
+
+Statuses: Not started · In progress · Done · Blocked. Task checkboxes live in `10-PHASES.md`.
+
+## Decisions
+
+Decisions D-01 to D-15 are in `03-TRD.md` §6. Continue numbering here.
+
+| ID | Date | Decision | Why |
+|---|---|---|---|
+| D-16 | 2026-10-23 | Entry file for the coding agent is `CLAUDE.md` (Claude Code) | User's tool choice |
+| D-17 | 2026-10-23 | Cashier and Waiter land on POS, Kitchen Staff on the kitchen board after sign-in | Faster start of shift; others keep the Dashboard (`08-APP-FLOW.md` §2) |
+| D-18 | 2026-10-23 | Registration starts a 14-day trial instead of a simulated card payment | No payment gateway in v1 (D-12); prototype payment was fake |
+
+## Spec changes
+
+| Date | Doc | Change | Reason |
+|---|---|---|---|
+| 2026-10-23 | All | Docs created from a review of the prototype (`prototype/`) | Production rebuild planning |
+
+## Known issues & tech debt
+
+Prototype problems found in the 2026-10-23 code review, and where v1 addresses each. Nothing here needs fixing in `prototype/`.
+
+| Prototype issue | Fixed in v1 by | Phase |
+|---|---|---|
+| Plain-text passwords and all tenants' data in one browser's localStorage | Server DB, argon2id, tenant scoping (D-01, D-04, D-06) | 2–3 |
+| Hard-coded `platform/platform` admin and `1234` demo logins shown on screen | Platform admin with TOTP; demo seed off in production; no credentials in UI | 3, 11 |
+| Disabled `admin` auto-recreated at sign-in with the company password | BR-02 | 3 |
+| Screen-only role checks; Cashier could void | Server permissions; `sales.void` Admin/Manager only (BR-24) | 3, 8 |
+| XSS: table no. in POS dropdown, username in `onclick`, logo `src`; unvalidated backup restore | React escaping, CSP, strict import schemas (AC-61) | 4, 7, 12 |
+| "Remember me" restored sessions without a password | Device cookie remembers only the company (`05` §1) | 3 |
+| Profit included GST and used today's purchase price | BR-32 | 10 |
+| Voided payments counted in payment report and dashboard | BR-31 | 8, 10 |
+| GST report "Print" printed a blank page | Print CSS for reports (SCR-16) | 10 |
+| Line discount not capped → negative totals | BR-14 | 1, 7 |
+| Stock Out with positive qty increased stock; clamping broke the movement log | BR-25 | 6 |
+| Held orders lost bill discount, table and kitchen link | BR-29 | 7 |
+| Void restocked untracked dishes | BR-24 | 8 |
+| Abandoned registration got a free trial on opening Subscription | BR-03 (trial created at registration only) | 3 |
+| Usernames unique case-sensitively but matched case-insensitively | BR-02 | 3 |
+| Two tabs overwrote each other's data; possible duplicate invoice numbers | Server transactions, counters, row locks (BR-21, BR-23) | 2, 7 |
+| Silent data loss when browser storage was full | Server storage; images as files (D-14) | 2, 5 |
+| Plan limits listed but not enforced | BR-07 | 11 |
+| "Purchases" screen was just Inventory; supplier balances typed in by hand | F-09, BR-38 | 12 |
+| No edit/deactivate for customers, suppliers, expenses, users; no product deactivate | F-04, F-06, F-17, F-18, F-19 | 3–10 |
+| Refund KPIs with no refund feature | KPIs removed; refunds out of scope | 10 |
+| CSV import split on commas and changed stock without movements; "Excel" labels for CSV | F-07 with a real CSV parser and movements | 5 |
+| Restaurant stock tracking guessed from hard-coded categories | `track_stock` field (BR-09) | 5 |
+| Not mobile-friendly; nav items not keyboard-accessible; several colors below AA contrast | `09-DESIGN.md` §2, §4, §5 | 4 |
+| Leftover "nimbus" names; demo controls (Simulate expiration, upgrade cards) in the app | Removed | 4, 11 |
+| Demo data charged 5% GST on rice, cooking oil and salt (reportedly exempt) | Exempt tax category (BR-10), seed fix | 2 |
+
+## Session log
+
+- 2026-10-23 — Prototype reviewed; planning docs created (`docs/` 01–13, README, CLAUDE.md); user chose production SaaS on React + Node + PostgreSQL with Claude Code — Next: Phase 0
