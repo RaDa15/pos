@@ -9,9 +9,13 @@ import { createSessionMiddleware } from './middleware/session.js';
 import { csrfProtection } from './middleware/csrf.js';
 import { globalApiRateLimit } from './middleware/rateLimit.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import path from 'node:path';
 import { registerRouter } from './routes/register.js';
 import { authRouter, meRouter } from './routes/auth.js';
 import { employeesRouter } from './routes/employees.js';
+import { settingsRouter } from './routes/settings.js';
+import { businessRouter } from './routes/business.js';
+import { productsRouter } from './routes/products.js';
 
 export function createApp(): Express {
   const app = express();
@@ -46,11 +50,17 @@ export function createApp(): Express {
     });
   });
 
+  // Serve uploads
+  app.use(env.PUBLIC_UPLOAD_BASE_URL, express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));
+
   // API v1 Routes
   app.use('/api/v1/register', registerRouter);
   app.use('/api/v1/auth', authRouter);
   app.use('/api/v1/me', meRouter);
   app.use('/api/v1/employees', employeesRouter);
+  app.use('/api/v1/settings', settingsRouter);
+  app.use('/api/v1/business', businessRouter);
+  app.use('/api/v1/products', productsRouter);
 
   // Centralized Error Handler (07-API-SPEC.md §2)
   app.use(errorHandler);

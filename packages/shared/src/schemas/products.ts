@@ -10,7 +10,7 @@ export const CreateProductRequestSchema = z
     sellPrice: z.number().positive('Price must be greater than 0.'),
     taxRateId: z.string().uuid(),
     unit: z.enum(PRODUCT_UNITS).optional().default('pc'),
-    trackStock: z.boolean().optional().default(true),
+    trackStock: z.boolean().optional(),
     openingStock: z.number().int().nonnegative().optional().default(0),
     minStock: z.number().int().nonnegative().optional().default(0),
     supplierId: z.string().uuid().nullable().optional(),

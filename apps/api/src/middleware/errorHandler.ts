@@ -24,6 +24,29 @@ export function errorHandler(
     return;
   }
 
+  // Handle Multer upload errors
+  if (err && typeof err === 'object' && 'name' in err && (err as { name: string }).name === 'MulterError') {
+    const multerErr = err as unknown as { code: string; message: string };
+    if (multerErr.code === 'LIMIT_FILE_SIZE') {
+      res.status(413).json({
+        error: {
+          code: 'FILE_TOO_LARGE',
+          message: 'File size exceeds maximum allowed limit (2 MB).',
+          requestId,
+        },
+      });
+      return;
+    }
+    res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: multerErr.message,
+        requestId,
+      },
+    });
+    return;
+  }
+
   if (err instanceof ZodError) {
     const fields: Record<string, string> = {};
     for (const issue of err.issues) {

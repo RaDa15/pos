@@ -96,12 +96,12 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 4
 - **Tasks:**
-  - [ ] Tax rates API and Settings section (BR-10, immutable rate/mode/category)
-  - [ ] Business profile, GST-registered switch (BR-11), logo upload with sharp
-  - [ ] Customer-type discounts API and Settings section (BR-34)
-  - [ ] Products API (create with opening stock movement, edit, deactivate, image upload, barcode generation and uniqueness — BR-08, BR-09) and SCR-11
-  - [ ] CSV template, import (real CSV parser, movements for stock changes), export with formula-injection guard (F-07)
-  - [ ] Audit entries for every settings and product change
+  - [x] Tax rates API and Settings section (BR-10, immutable rate/mode/category)
+  - [x] Business profile, GST-registered switch (BR-11), logo upload with sharp
+  - [x] Customer-type discounts API and Settings section (BR-34)
+  - [x] Products API (create with opening stock movement, edit, deactivate, image upload, barcode generation and uniqueness — BR-08, BR-09) and SCR-11
+  - [x] CSV template, import (real CSV parser, movements for stock changes), export with formula-injection guard (F-07)
+  - [x] Audit entries for every settings and product change
 - **Deliverables:** catalogue and settings fully working.
 - **Acceptance:** AC-17 to AC-21, AC-52, AC-53.
 

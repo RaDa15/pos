@@ -158,12 +158,19 @@ export const api = {
   post: <T>(url: string, body?: unknown) =>
     apiRequest<T>(url, {
       method: 'POST',
-      body: body ? JSON.stringify(body) : undefined,
+      body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+    }),
+  put: <T>(url: string, body?: unknown) =>
+    apiRequest<T>(url, {
+      method: 'PUT',
+      body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     }),
   patch: <T>(url: string, body?: unknown) =>
     apiRequest<T>(url, {
       method: 'PATCH',
-      body: body ? JSON.stringify(body) : undefined,
+      body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     }),
   delete: <T>(url: string) => apiRequest<T>(url, { method: 'DELETE' }),
 };
+
+export const apiClient = api;

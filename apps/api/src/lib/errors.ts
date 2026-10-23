@@ -104,6 +104,20 @@ export class AppError extends Error {
     return new AppError(429, 'RATE_LIMITED', message);
   }
 
+  static barcodeTaken(message = 'Barcode is already in use by another product'): AppError {
+    return new AppError(409, 'BARCODE_TAKEN', message);
+  }
+
+  static fileTooLarge(message = 'File size exceeds maximum allowed limit (2 MB)'): AppError {
+    return new AppError(413, 'FILE_TOO_LARGE', message);
+  }
+
+  static unsupportedFile(
+    message = 'Only JPEG, PNG and WebP images are supported. SVG is not allowed.'
+  ): AppError {
+    return new AppError(415, 'UNSUPPORTED_FILE', message);
+  }
+
   static internal(message = 'An unexpected internal error occurred'): AppError {
     return new AppError(500, 'INTERNAL_ERROR', message);
   }

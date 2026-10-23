@@ -13,6 +13,10 @@ import { ChangePasswordScreen } from './screens/ChangePasswordScreen.js';
 // Screen SCR-07 Dashboard
 import { DashboardScreen } from './screens/DashboardScreen.js';
 
+// Phase 5 Screens: SCR-11 Products & SCR-24 Settings
+import { ProductsScreen } from './screens/ProductsScreen.js';
+import { SettingsScreen } from './screens/SettingsScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -110,12 +114,7 @@ export const router = createBrowserRouter([
         path: '/app/products',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-11"
-              title="Products & Menu Catalogue"
-              description="Product catalogue management, barcodes, GST rate assignments, and CSV import/export."
-              phaseNumber={5}
-            />
+            <ProductsScreen />
           </ProtectedRoute>
         ),
       },
@@ -279,12 +278,7 @@ export const router = createBrowserRouter([
         path: '/app/settings',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-24"
-              title="Business Settings & Tax Rates"
-              description="Store profile, TPN, logo upload, customer discount percentages, tax rates, and backup export/import."
-              phaseNumber={5}
-            />
+            <SettingsScreen />
           </ProtectedRoute>
         ),
       },

@@ -131,5 +131,20 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
   - Tenant isolation test harness verifying zero cross-tenant leakage (`AC-58`, `AC-59`, `AC-60`).
   - Frontend: `apps/web/src/api/client.ts` (CSRF token handling & retry), `AuthContext.tsx`, screens SCR-01 (Landing), SCR-02 (Register Details), SCR-03 (Plan Select), SCR-04 (Company Login), SCR-05 (Employee Login), SCR-06 (Forced Set New Password), App Shell placeholder (`/app`).
   - Acceptance Criteria: AC-01, AC-02, AC-03, AC-08 to AC-14, AC-58 to AC-60, AC-62, AC-63 all verified & passing. 78/78 tests green across monorepo.
-  - Next: Phase 4 — App shell, design system & i18n.
-
+- 2026-10-23 — **Phase 4 (App shell, design system & i18n) completed**:
+  - Design token system (`index.css`) matching `09-DESIGN.md` with AA-contrast, semantic colors, light/dark themes, and glassmorphism.
+  - Accessible, responsive App Shell layout (`AppLayout.tsx`, `Sidebar.tsx`, `Header.tsx`) with keyboard navigation, active navigation highlights, and mobile menu drawer.
+  - Complete i18n support in English (`en.json`) and Dzongkha (`dz.json`) with persistent language switcher.
+  - Component library (`Button`, `Card`, `Modal`, `Table`, `Input`, `Select`, `Pill`, `Badge`, `EmptyState`, `ToastProvider`, `Toast`).
+- 2026-10-23 — **Phase 5 (Catalogue & settings) completed**:
+  - Tax rates API and Settings section (`GET/POST /settings/tax-rates`, `PATCH /settings/tax-rates/:id` strictly enforcing immutability of rate percentage, mode, and category per `BR-10` & `AC-52`).
+  - Business profile API (`GET/PATCH /settings/business` with GST-registered switch `BR-11` and `gst_registered_changed` audit log).
+  - Business logo & product image upload with `multer` memory storage (2MB limit, SVG blocked with 415) and `sharp` WebP processing (quality 80, EXIF/metadata stripped per `AC-53`).
+  - Customer-type discounts API & Settings UI (`GET/PUT /settings/customer-discounts` per `BR-34`).
+  - Products API (`POST /products` with opening stock movement, `PATCH /products/:id` with barcode uniqueness check `BR-08`, deactivation, image upload/delete, price change audit `Nu. X → Nu. Y`).
+  - Barcode auto-generation starting `20` with 11 digits and uniqueness verification (`BR-08`, `BR-09`, `AC-17`).
+  - Full RFC 4180 CSV parser and serializer (`apps/api/src/lib/csv.ts`) handling quoted commas/newlines (`AC-20`), UTF-8 BOM, and formula injection guard (`=`, `+`, `-`, `@` escaped per `F-07` / `AC-21`).
+  - CSV template download (`GET /products/import-template.csv`), bulk import (`POST /products/import`) with stock movements, and export (`GET /products/export.csv`).
+  - Full UI screens: `ProductsScreen.tsx` (SCR-11) and `SettingsScreen.tsx` (SCR-24).
+  - All 11 new integration tests in `products.test.ts` and `settings.test.ts` passing; 97/97 total test suite passing (`AC-17`–`AC-21`, `AC-52`, `AC-53`).
+  - Next: Phase 6 — Inventory, customers & suppliers.
