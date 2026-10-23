@@ -6,10 +6,10 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 1 — Shared domain engine |
-| Status | Phase 0 completed, Phase 1 ready |
+| Current phase | Phase 2 — Database & seed |
+| Status | Phase 1 completed, Phase 2 ready |
 | Last updated | 2026-10-23 |
-| Next step | Phase 1: `packages/shared/src/money/engine.ts` integer-chhertum calculation |
+| Next step | Phase 2: `schema.prisma`, SQL migrations, tenant extension, counters, and seeds |
 | Blockers | None for Phases 0–4. Open questions in `docs/README.md` must be answered before the phases marked there |
 
 ## Phase progress
@@ -17,7 +17,7 @@ The project's living log. AI sessions forget everything between chats; this file
 | Phase | Status | Acceptance |
 |---|---|---|
 | 0 Setup | Done | Exit criteria passed (pnpm dev runs web+api, lint/test/typecheck green) |
-| 1 Shared domain engine | Not started | — |
+| 1 Shared domain engine | Done | AC-29, AC-30, AC-31 passed; 1,000-cart prototype comparison green; 100% test coverage |
 | 2 Database & seed | Not started | — |
 | 3 Auth, registration, employees, tenancy | Not started | — |
 | 4 App shell, design system & i18n | Not started | — |

@@ -42,12 +42,12 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 0
 - **Tasks:**
-  - [ ] `money/engine.ts`: `computeLine`, `allocateDiscounts`, `computeSale` in integer chhertum per `02-BUSINESS-RULES.md` §3.1–3.2, including caps (BR-14) and the GST-registered switch (BR-11)
-  - [ ] `money/words.ts`: `amountInWords` (BR-37); `money/format.ts`: `formatMoney` (Nu., Indian grouping)
-  - [ ] Golden tests: the §3.3 worked example; inclusive 105.00; discount caps; a 30-line cart; zero-rate and exempt lines; percent bill discount at 100%
-  - [ ] Comparison test that runs the prototype's `computeLineTax`/`effectiveCart` (copied into the test folder) on 1,000 random carts and asserts v1 results differ by at most Nu. 0.01 per line
-  - [ ] `enums.ts` + English labels; `business-types.ts` (§3.5); `plans.ts` (§3.6); `permissions.ts` (`05-SECURITY-ACCESS.md` §3) with a test that snapshots the matrix
-  - [ ] Zod schemas for every request body in `07-API-SPEC.md` (can be filled in per phase; create the folder and naming now)
+  - [x] `money/engine.ts`: `computeLine`, `allocateDiscounts`, `computeSale` in integer chhertum per `02-BUSINESS-RULES.md` §3.1–3.2, including caps (BR-14) and the GST-registered switch (BR-11)
+  - [x] `money/words.ts`: `amountInWords` (BR-37); `money/format.ts`: `formatMoney` (Nu., Indian grouping)
+  - [x] Golden tests: the §3.3 worked example; inclusive 105.00; discount caps; a 30-line cart; zero-rate and exempt lines; percent bill discount at 100%
+  - [x] Comparison test that runs the prototype's `computeLineTax`/`effectiveCart` (copied into the test folder) on 1,000 random carts and asserts v1 results differ by at most Nu. 0.01 per line
+  - [x] `enums.ts` + English labels; `business-types.ts` (§3.5); `plans.ts` (§3.6); `permissions.ts` (`05-SECURITY-ACCESS.md` §3) with a test that snapshots the matrix
+  - [x] Zod schemas for every request body in `07-API-SPEC.md` (can be filled in per phase; create the folder and naming now)
 - **Deliverables:** `packages/shared` published to the workspace with tests.
 - **Acceptance:** AC-29, AC-30, AC-31.
 
