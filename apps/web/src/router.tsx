@@ -1,18 +1,34 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from './components/RootLayout.js';
 import { ProtectedRoute } from './components/ProtectedRoute.js';
+
+// Screens SCR-01 to SCR-06
 import { LandingScreen } from './screens/LandingScreen.js';
 import { RegisterScreen } from './screens/RegisterScreen.js';
 import { PlanSelectScreen } from './screens/PlanSelectScreen.js';
 import { CompanyLoginScreen } from './screens/CompanyLoginScreen.js';
 import { EmployeeLoginScreen } from './screens/EmployeeLoginScreen.js';
 import { ChangePasswordScreen } from './screens/ChangePasswordScreen.js';
-import { AppHomeScreen } from './screens/AppHomeScreen.js';
+
+// Screen SCR-07 Dashboard
+import { DashboardScreen } from './screens/DashboardScreen.js';
+
+// Screen Placeholders for SCR-08 to SCR-24
+import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
+
+// Platform Screens SCR-25 to SCR-27
+import { PlatformLoginScreen } from './screens/PlatformLoginScreen.js';
+import { PlatformBusinessesScreen } from './screens/PlatformBusinessesScreen.js';
+import { PlatformPaymentsScreen } from './screens/PlatformPaymentsScreen.js';
+
+// Dev components catalog
+import { DevComponentsPage } from './screens/DevComponentsPage.js';
 
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
+      // Public & Auth Routes
       {
         path: '/',
         element: <LandingScreen />,
@@ -41,11 +57,13 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+
+      // App Screens (SCR-07 to SCR-24)
       {
         path: '/app',
         element: (
           <ProtectedRoute>
-            <AppHomeScreen viewTitle="Dashboard" />
+            <DashboardScreen />
           </ProtectedRoute>
         ),
       },
@@ -53,7 +71,25 @@ export const router = createBrowserRouter([
         path: '/app/pos',
         element: (
           <ProtectedRoute>
-            <AppHomeScreen viewTitle="Point of Sale" />
+            <ScreenPlaceholder
+              screenId="SCR-08"
+              title="Point of Sale"
+              description="Real-time scan box, product tiles, customer selection, discounts, and multi-wallet checkout."
+              phaseNumber={7}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/sales/:id',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-09"
+              title="Receipt Viewer"
+              description="View, 80mm thermal print, PDF download, and invoice voiding with stock restoration."
+              phaseNumber={7}
+            />
           </ProtectedRoute>
         ),
       },
@@ -61,9 +97,216 @@ export const router = createBrowserRouter([
         path: '/app/kitchen',
         element: (
           <ProtectedRoute>
-            <AppHomeScreen viewTitle="Kitchen Board" />
+            <ScreenPlaceholder
+              screenId="SCR-10"
+              title="Kitchen Orders Board"
+              description="Live KOT orders board with columns for New, Accepted, Preparing, and Ready tickets."
+              phaseNumber={8}
+            />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: '/app/products',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-11"
+              title="Products & Menu Catalogue"
+              description="Product catalogue management, barcodes, GST rate assignments, and CSV import/export."
+              phaseNumber={5}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/inventory',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-12"
+              title="Inventory & Stock Movements"
+              description="Current stock levels, low-stock alerts, expiry date tracking, and stock movement logs."
+              phaseNumber={6}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/purchases',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-13"
+              title="Supplier Purchases"
+              description="Record incoming goods from suppliers, cost price tracking, and batch assignments."
+              phaseNumber={6}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/sales',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-14"
+              title="Invoices & Sales History"
+              description="Search, view, filter, and inspect past tax invoices and customer receipts."
+              phaseNumber={7}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/reports/payments',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-15"
+              title="Payments Report"
+              description="Daily breakdown by payment method: Cash, mBoB, mPay, TPay, DK Bank, and Credit."
+              phaseNumber={9}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/reports/gst',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-16"
+              title="GST Returns & Tax Report"
+              description="DRC-compliant tax breakdown (Standard 5%, Exempt 0%, Zero 0%) with daily CSV exports."
+              phaseNumber={9}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/reports/sales',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-17"
+              title="Sales & Profit Analytics"
+              description="Sales trends, revenue charts, profit analysis, and top-selling product breakdowns."
+              phaseNumber={9}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/customers',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-18"
+              title="Customers & Credit Accounts"
+              description="Customer directory, VIP discounts, credit limits, outstanding balances, and settlement ledger."
+              phaseNumber={6}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/suppliers',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-19"
+              title="Suppliers Directory"
+              description="Supplier registry, outstanding balances, contact details, and purchase records."
+              phaseNumber={6}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/expenses',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-20"
+              title="Operating Expenses"
+              description="Record store and restaurant operating expenses with categories, payment methods, and receipts."
+              phaseNumber={6}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/users',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-21"
+              title="Employees & Permissions"
+              description="Manage staff accounts, assign 8 roles (Admin, Cashier, Waiter, Kitchen, etc.), and enforce plan limits."
+              phaseNumber={9}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/audit',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-22"
+              title="Audit Activity Log"
+              description="Immutable audit trail of all financial, catalogue, inventory, and security actions."
+              phaseNumber={9}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/subscription',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-23"
+              title="Subscription Management"
+              description="Plan details, expiration date, upgrade/downgrade, and offline bank transfer payment reference submission."
+              phaseNumber={9}
+            />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/app/settings',
+        element: (
+          <ProtectedRoute>
+            <ScreenPlaceholder
+              screenId="SCR-24"
+              title="Business Settings & Tax Rates"
+              description="Store profile, TPN, logo upload, customer discount percentages, tax rates, and backup export/import."
+              phaseNumber={5}
+            />
+          </ProtectedRoute>
+        ),
+      },
+
+      // Platform Screens (SCR-25 to SCR-27)
+      {
+        path: '/platform/login',
+        element: <PlatformLoginScreen />,
+      },
+      {
+        path: '/platform',
+        element: <PlatformBusinessesScreen />,
+      },
+      {
+        path: '/platform/payments',
+        element: <PlatformPaymentsScreen />,
+      },
+
+      // Design System Component Catalog (Dev Only)
+      {
+        path: '/dev/components',
+        element: <DevComponentsPage />,
       },
     ],
   },

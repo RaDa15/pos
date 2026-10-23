@@ -1,0 +1,68 @@
+:root {
+  /* Colors (09-DESIGN.md §2 with WCAG AA contrast enhancements) */
+  --navy: #14213D;
+  --navy-2: #1C2E52;
+  --paper: #F7F6F2;
+  --panel: #FFFFFF;
+  --ink: #12131A;
+  --muted: #5F6673;       /* v1 contrast fix: 5.3:1 on paper */
+  --line: #E4E1D8;
+  --line-soft: #EFEDE6;
+  --teal: #187A63;        /* v1 contrast fix: 5.3:1 on white */
+  --teal-dark: #166B57;
+  --teal-tint: #E4F3EC;
+  --teal-wash: #F1FAF6;
+  --amber: #D98E22;
+  --amber-text: #9A6212;   /* v1 contrast fix: 4.7:1 on paper */
+  --amber-tint: #FDF1DD;
+  --amber-ink: #8A5A0E;
+  --alert-bg: #FFF4E5;
+  --alert-border: #F5C77E;
+  --alert-ink: #8A5A00;
+  --red: #B3452C;
+  --red-tint: #FBE7E2;
+  --red-border: #EAC3B8;
+  --badge-red: #C9302C;    /* v1 contrast fix: 5.3:1 with white */
+  --neutral-pill: #EEEEEE;
+  --neutral-pill-text: #555555;
+  --nav-text: #C7CBDA;
+  --nav-sub: #9AA4C4;
+  --nav-label: #8F99B8;   /* v1 contrast fix: 5.6:1 on navy */
+  --placeholder: #6E727F; /* v1 contrast fix: 4.8:1 on white */
+  --backdrop: rgba(18, 19, 26, 0.45);
+
+  /* Gradients */
+  --auth-gradient: radial-gradient(circle at 15% 20%, rgba(31, 138, 112, 0.24), transparent 32%),
+    radial-gradient(circle at 85% 80%, rgba(217, 142, 34, 0.18), transparent 30%),
+    linear-gradient(135deg, #0b1730 0%, #14213D 50%, #1a3150 100%);
+
+  /* Typography Stacks */
+  --font-main: 'Manrope', 'Noto Sans Tibetan', 'Jomolhari', 'Microsoft Himalaya', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Typography Scale */
+  --type-auth-title: 800 22px/28px var(--font-main);
+  --type-page-title: 700 17px/24px var(--font-main);
+  --type-section: 800 15px/22px var(--font-main);
+  --type-body: 400 13.5px/20px var(--font-main);
+  --type-body-bold: 700 13.5px/20px var(--font-main);
+  --type-label: 600 12.5px/18px var(--font-main);
+  --type-small: 400 11.5px/16px var(--font-main);
+  --type-th: 600 11px/16px var(--font-main);
+  --type-kpi: 800 24px/30px var(--font-mono);
+  --type-mono: 400 13.5px/20px var(--font-mono);
+  --type-mono-bold: 700 13.5px/20px var(--font-mono);
+  --type-receipt: 400 12px/16px var(--font-mono);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-card: 14px;
+  --radius-pill: 20px;
+
+  /* Shadows */
+  --shadow-toast: 0 6px 20px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 25px 70px rgba(0, 0, 0, 0.28);
+  --shadow-logo: 0 8px 22px rgba(20, 33, 61, 0.22);
+}

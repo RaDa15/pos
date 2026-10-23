@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api, ApiError } from '../api/client.js';
+import { setAppLanguage } from '../i18n/index.js';
 
 export interface EmployeeInfo {
   id: string;
@@ -104,6 +105,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setPermissions(res.data.permissions || []);
         setDashboardLens(res.data.dashboardLens || null);
         setPlanFeatures(res.data.planFeatures || []);
+        if (res.data.employee.language) {
+          setAppLanguage(res.data.employee.language);
+        }
         return true;
       }
       return false;
@@ -125,6 +129,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
     initAuth();
+
+    const handleSessionExpired = () => {
+      setEmployee(null);
+      setBusiness(null);
+      setSubscription(null);
+      setPermissions([]);
+      setDashboardLens(null);
+      setPlanFeatures([]);
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+        window.location.href = '/login/employee?expired=1';
+      }
+    };
+
+    window.addEventListener('pos:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('pos:session-expired', handleSessionExpired);
   }, [checkDevice, checkMe]);
 
   const companyLogin = async (
@@ -177,6 +196,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setPermissions(res.data.permissions || []);
       setDashboardLens(res.data.dashboardLens || null);
       setPlanFeatures(res.data.planFeatures || []);
+      if (res.data.employee.language) {
+        setAppLanguage(res.data.employee.language);
+      }
 
       return res.data.employee;
     } catch (err) {
@@ -226,7 +248,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (employee) {
       setEmployee({ ...employee, language });
     }
-    document.documentElement.lang = language;
+    setAppLanguage(language);
   };
 
   return (

@@ -1,0 +1,50 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: black;
+  }
+
+  /* Hide app navigation and top chrome */
+  .sidebar, .topbar, .drawer, nav, header {
+    display: none !important;
+  }
+
+  /* Receipt 80mm format */
+  .receipt-print {
+    width: 80mm;
+    margin: 0 auto;
+    padding: 4mm;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    line-height: 1.35;
+    color: #000;
+  }
+
+  /* Report A4 portrait format */
+  .report-print {
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 10mm;
+    font-size: 12px;
+  }
+
+  @page {
+    margin: 6mm;
+    size: auto;
+  }
+}

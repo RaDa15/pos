@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 import { ApiError } from '../api/client.js';
+import { AuthLayout } from '../components/layout/AuthLayout.js';
+import { Field } from '../components/ui/Field.js';
+import { Input } from '../components/ui/Input.js';
+import { Button } from '../components/ui/Button.js';
+import { AlertBanner } from '../components/ui/AlertBanner.js';
 
 export function ChangePasswordScreen() {
   const navigate = useNavigate();
@@ -10,7 +15,6 @@ export function ChangePasswordScreen() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,10 +35,10 @@ export function ChangePasswordScreen() {
     try {
       await changePassword(currentPassword, newPassword);
 
-      // Redirect to role home
-      if (employee?.role === 'Cashier' || employee?.role === 'Waiter') {
+      const r = (employee?.role || '').toLowerCase();
+      if (r === 'cashier' || r === 'waiter') {
         navigate('/app/pos');
-      } else if (employee?.role === 'Kitchen Staff') {
+      } else if (r === 'kitchen_staff') {
         navigate('/app/kitchen');
       } else {
         navigate('/app');
@@ -51,94 +55,56 @@ export function ChangePasswordScreen() {
   };
 
   return (
-    <div style={{ maxWidth: '440px', margin: '4rem auto', padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-      <header style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h2 style={{ margin: '0 0 0.5rem 0' }}>Set New Password</h2>
-        <p style={{ color: '#666', margin: 0, fontSize: '0.95rem' }}>
-          You must change your temporary password before accessing the system.
-        </p>
-      </header>
+    <AuthLayout
+      title="Set New Password"
+      subtitle="You must change your temporary password before proceeding."
+      maxWidth={440}
+    >
+      {error && <AlertBanner variant="danger" message={error} />}
 
-      {error && (
-        <div style={{ padding: '0.75rem 1rem', background: '#ffebe9', color: '#cf222e', borderRadius: '6px', marginBottom: '1.5rem', border: '1px solid #ff8182' }}>
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        <div>
-          <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>
-            Current Temporary Password
-          </label>
-          <input
-            type={showPassword ? 'text' : 'password'}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <Field label="Current Temporary Password" required>
+          <Input
+            type="password"
             required
             autoFocus
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>
-            New Password
-          </label>
-          <input
-            type={showPassword ? 'text' : 'password'}
+        <Field label="New Password" required hint="Must be at least 8 characters.">
+          <Input
+            type="password"
             required
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Min 8 characters"
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>
-            Confirm New Password
-          </label>
-          <input
-            type={showPassword ? 'text' : 'password'}
+        <Field label="Confirm New Password" required>
+          <Input
+            type="password"
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Re-type new password"
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
           />
-        </div>
+        </Field>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <input
-            type="checkbox"
-            id="toggleShow"
-            checked={showPassword}
-            onChange={(e) => setShowPassword(e.target.checked)}
-          />
-          <label htmlFor="toggleShow" style={{ fontSize: '0.9rem', color: '#555', cursor: 'pointer' }}>
-            Show passwords
-          </label>
+        <div style={{ marginTop: '12px' }}>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            loading={isLoading}
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            Save Password & Continue →
+          </Button>
         </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          style={{
-            marginTop: '0.5rem',
-            padding: '0.85rem',
-            background: '#0969da',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '1rem',
-            fontWeight: 600,
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            opacity: isLoading ? 0.7 : 1,
-          }}
-        >
-          {isLoading ? 'Updating...' : 'Update Password & Continue →'}
-        </button>
       </form>
-    </div>
+    </AuthLayout>
   );
 }

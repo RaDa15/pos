@@ -29,6 +29,13 @@ export class ApiError extends Error {
 }
 
 let cachedCsrfToken: string | null = null;
+type SessionExpiryHandler = () => void;
+let sessionExpiryHandler: SessionExpiryHandler | null = null;
+
+export function setOnSessionExpired(handler: SessionExpiryHandler | null) {
+  sessionExpiryHandler = handler;
+}
+
 
 export function getCsrfTokenFromCookie(): string | null {
   if (typeof document === 'undefined') {
@@ -126,6 +133,20 @@ export async function apiRequest<T = unknown>(
     const message = errorBody?.message || res.statusText || 'An error occurred';
     const details = errorBody?.details;
     const requestId = errorBody?.requestId;
+
+    if (res.status === 401 && !url.includes('/api/v1/auth/')) {
+      if (sessionExpiryHandler) {
+        sessionExpiryHandler();
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('pos:session-expired', {
+            detail: { message: 'Your session expired. Please sign in again.' },
+          })
+        );
+      }
+    }
+
     throw new ApiError(res.status, message, code, details, requestId);
   }
 

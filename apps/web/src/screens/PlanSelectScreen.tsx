@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api, ApiError } from '../api/client.js';
+import { AuthLayout } from '../components/layout/AuthLayout.js';
+import { Button } from '../components/ui/Button.js';
+import { AlertBanner } from '../components/ui/AlertBanner.js';
+import { Pill } from '../components/ui/Pill.js';
 
 interface DraftRegistration {
   business: {
@@ -63,7 +67,6 @@ export function PlanSelectScreen() {
       });
 
       sessionStorage.removeItem('draft_registration');
-      // Navigate to company login with business ID prefilled
       const bizCode = res.data.business.businessCode;
       navigate(`/login?biz=${encodeURIComponent(bizCode)}&registered=1`);
     } catch (err) {
@@ -74,136 +77,141 @@ export function PlanSelectScreen() {
     }
   };
 
+  const plans = [
+    {
+      code: 'starter' as const,
+      name: 'Starter',
+      price: 'Nu. 800',
+      period: '/month',
+      desc: '1 employee, manual inventory & billing',
+      features: ['POS billing & held orders', '1 employee account', 'Inventory tracking', 'Receipt printing'],
+    },
+    {
+      code: 'professional' as const,
+      name: 'Professional',
+      price: 'Nu. 2,200',
+      period: '/month',
+      desc: 'Up to 10 employees, GST & reports',
+      popular: true,
+      features: [
+        'Everything in Starter',
+        'Up to 10 employees',
+        'GST & tax reports',
+        'Customers & supplier credit',
+        'CSV Import / Export',
+      ],
+    },
+    {
+      code: 'enterprise' as const,
+      name: 'Enterprise',
+      price: 'Nu. 4,500',
+      period: '/month',
+      desc: 'Unlimited staff & priority support',
+      features: [
+        'Everything in Professional',
+        'Unlimited employees',
+        'Multi-register POS',
+        'Audit logs & analytics',
+        'Dedicated support',
+      ],
+    },
+  ];
+
   return (
-    <div style={{ maxWidth: '720px', margin: '2rem auto', padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-      <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <h2 style={{ margin: '0 0 0.5rem 0' }}>Choose your Plan</h2>
-        <p style={{ color: '#666', margin: 0 }}>
-          Step 2 of 2: All plans include a 14-day free trial. No card required.
-        </p>
-      </header>
-
-      {error && (
-        <div style={{ padding: '0.75rem 1rem', background: '#ffebe9', color: '#cf222e', borderRadius: '6px', marginBottom: '1.5rem', border: '1px solid #ff8182' }}>
-          {error}
+    <AuthLayout
+      title="Choose Plan"
+      subtitle="Step 2 of 2: All plans include 14-day free trial. No card required."
+      progressStep={2}
+      totalSteps={2}
+      maxWidth={680}
+      footer={
+        <div>
+          <Link to="/register" style={{ color: 'var(--muted)', textDecoration: 'none' }}>
+            ← Back to Business Details
+          </Link>
         </div>
-      )}
+      }
+    >
+      {error && <AlertBanner variant="danger" message={error} />}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        {/* Starter Plan */}
-        <div
-          onClick={() => setSelectedPlan('starter')}
-          style={{
-            border: selectedPlan === 'starter' ? '2px solid #0969da' : '1px solid #d0d7de',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            background: selectedPlan === 'starter' ? '#f6f8fa' : 'white',
-            cursor: 'pointer',
-            position: 'relative',
-          }}
-        >
-          <h3 style={{ margin: '0 0 0.5rem 0' }}>Starter</h3>
-          <p style={{ fontSize: '1.3rem', fontWeight: 'bold', margin: '0 0 1rem 0' }}>
-            Nu. 500 <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: '#666' }}>/ month</span>
-          </p>
-          <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.9rem', color: '#444', lineHeight: '1.6' }}>
-            <li>1 Active Employee</li>
-            <li>Up to 500 products</li>
-            <li>Standard POS & Receipts</li>
-            <li>Basic daily summaries</li>
-          </ul>
-        </div>
-
-        {/* Professional Plan */}
-        <div
-          onClick={() => setSelectedPlan('professional')}
-          style={{
-            border: selectedPlan === 'professional' ? '2px solid #0969da' : '1px solid #d0d7de',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            background: selectedPlan === 'professional' ? '#f0f7ff' : 'white',
-            cursor: 'pointer',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: '-10px',
-              right: '12px',
-              background: '#0969da',
-              color: 'white',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              padding: '2px 8px',
-              borderRadius: '12px',
-            }}
-          >
-            POPULAR
-          </div>
-          <h3 style={{ margin: '0 0 0.5rem 0' }}>Professional</h3>
-          <p style={{ fontSize: '1.3rem', fontWeight: 'bold', margin: '0 0 1rem 0' }}>
-            Nu. 1,200 <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: '#666' }}>/ month</span>
-          </p>
-          <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.9rem', color: '#444', lineHeight: '1.6' }}>
-            <li>Up to 10 Employees</li>
-            <li>Unlimited products</li>
-            <li>CSV Catalog Import/Export</li>
-            <li>GST Reports & Kitchen Board</li>
-            <li>Customer Credit Ledger</li>
-          </ul>
-        </div>
-
-        {/* Enterprise Plan */}
-        <div
-          onClick={() => setSelectedPlan('enterprise')}
-          style={{
-            border: selectedPlan === 'enterprise' ? '2px solid #0969da' : '1px solid #d0d7de',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            background: selectedPlan === 'enterprise' ? '#f6f8fa' : 'white',
-            cursor: 'pointer',
-            position: 'relative',
-          }}
-        >
-          <h3 style={{ margin: '0 0 0.5rem 0' }}>Enterprise</h3>
-          <p style={{ fontSize: '1.3rem', fontWeight: 'bold', margin: '0 0 1rem 0' }}>
-            Nu. 3,000 <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: '#666' }}>/ month</span>
-          </p>
-          <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.9rem', color: '#444', lineHeight: '1.6' }}>
-            <li>Unlimited Employees</li>
-            <li>Unlimited products</li>
-            <li>All modules & features</li>
-            <li>Dedicated Priority Support</li>
-          </ul>
-        </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '14px',
+          marginBottom: '24px',
+        }}
+      >
+        {plans.map((p) => {
+          const isSelected = selectedPlan === p.code;
+          return (
+            <div
+              key={p.code}
+              onClick={() => setSelectedPlan(p.code)}
+              style={{
+                border: isSelected ? '2px solid var(--teal)' : '1px solid var(--line)',
+                borderRadius: 'var(--radius-md)',
+                padding: '16px 14px',
+                backgroundColor: isSelected ? 'var(--teal-wash)' : '#FFFFFF',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'all 0.15s ease',
+                position: 'relative',
+              }}
+            >
+              {p.popular && (
+                <div style={{ position: 'absolute', top: '-10px', right: '12px' }}>
+                  <Pill variant="success">POPULAR</Pill>
+                </div>
+              )}
+              <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--ink)' }}>
+                {p.name}
+              </div>
+              <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                <span className="mono" style={{ fontSize: '19px', fontWeight: 700, color: 'var(--ink)' }}>
+                  {p.price}
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{p.period}</span>
+              </div>
+              <div style={{ fontSize: '11.5px', color: 'var(--muted)', marginBottom: '12px', lineHeight: 1.3 }}>
+                {p.desc}
+              </div>
+              <ul
+                style={{
+                  margin: 'auto 0 0 0',
+                  padding: 0,
+                  listStyle: 'none',
+                  fontSize: '11px',
+                  color: 'var(--ink)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                }}
+              >
+                {p.features.map((feat, idx) => (
+                  <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ color: 'var(--teal-dark)', fontWeight: 700 }}>✓</span>
+                    <span>{feat}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-        <button
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <Button
+          variant="primary"
+          size="lg"
+          loading={isSubmitting}
           onClick={handleSubmit}
-          disabled={isSubmitting}
-          style={{
-            width: '100%',
-            maxWidth: '360px',
-            padding: '1rem 2rem',
-            background: '#0969da',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '1.1rem',
-            fontWeight: 600,
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            opacity: isSubmitting ? 0.7 : 1,
-          }}
+          style={{ width: '100%', justifyContent: 'center' }}
         >
-          {isSubmitting ? 'Creating Business...' : 'Start 14-day Free Trial'}
-        </button>
-
-        <Link to="/register" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
-          ← Back to business details
-        </Link>
+          Start 14-Day Free Trial →
+        </Button>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

@@ -82,13 +82,13 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 3
 - **Tasks:**
-  - [ ] `tokens.css`, `base.css`, `print.css` from `09-DESIGN.md` §2 (with the v1 contrast fixes); self-hosted fonts
-  - [ ] Components in `09-DESIGN.md` §3 with Storybook-free demo page at `/dev/components` (dev only)
-  - [ ] `AuthLayout`, `AppShell` (sidebar, top bar, drawer on mobile), `PlatformLayout`
-  - [ ] Navigation filtered by permission, business type and plan; role home redirects; no-access toast; blocked-subscription card (BR-05)
-  - [ ] i18next with `en.json` and `dz.json` seeded from the prototype `I18N` map; toggle in auth screens and sidebar; saved via `PATCH /me`
-  - [ ] Style SCR-01 to SCR-06 to match the prototype
-  - [ ] Offline bar (`useNetworkStatus`) and session-expiry handling in the API client
+  - [x] `tokens.css`, `base.css`, `print.css` from `09-DESIGN.md` §2 (with the v1 contrast fixes); self-hosted fonts
+  - [x] Components in `09-DESIGN.md` §3 with Storybook-free demo page at `/dev/components` (dev only)
+  - [x] `AuthLayout`, `AppShell` (sidebar, top bar, drawer on mobile), `PlatformLayout`
+  - [x] Navigation filtered by permission, business type and plan; role home redirects; no-access toast; blocked-subscription card (BR-05)
+  - [x] i18next with `en.json` and `dz.json` seeded from the prototype `I18N` map; toggle in auth screens and sidebar; saved via `PATCH /me`
+  - [x] Style SCR-01 to SCR-06 to match the prototype
+  - [x] Offline bar (`useNetworkStatus`) and session-expiry handling in the API client
 - **Deliverables:** navigable app with empty screens for every route in `08-APP-FLOW.md` §1.
 - **Acceptance:** AC-65, AC-68, AC-69.
 

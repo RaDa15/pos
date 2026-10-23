@@ -6,11 +6,11 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 4 — App shell, design system & i18n |
-| Status | Phase 3 completed, Phase 4 ready |
+| Current phase | Phase 5 — Catalogue & settings |
+| Status | Phase 4 completed, Phase 5 ready |
 | Last updated | 2026-10-23 |
-| Next step | Phase 4: `tokens.css`, `base.css`, `print.css`, self-hosted fonts, light/dark themes, responsive shell, i18next (en/dz) |
-| Blockers | None for Phases 0–4. Open questions in `docs/README.md` must be answered before the phases marked there |
+| Next step | Phase 5: Tax rates API & Settings, business profile, customer discounts, products API & CSV template |
+| Blockers | None for Phases 0–5. Open questions in `docs/README.md` must be answered before the phases marked there |
 
 ## Phase progress
 
@@ -20,7 +20,7 @@ The project's living log. AI sessions forget everything between chats; this file
 | 1 Shared domain engine | Done | AC-29, AC-30, AC-31 passed; 1,000-cart prototype comparison green; 100% test coverage |
 | 2 Database & seed | Done | AC-66 passed; all 22 models, 23 enums, raw SQL constraints, tenant isolation tests, atomic counters 50-call concurrency test, demo seed verified |
 | 3 Auth, registration, employees, tenancy | Done | AC-01..03, AC-08..14, AC-58..60, AC-62, AC-63 passed; CSRF, lockout, sessions, employee CRUD, tenant isolation harness, web screens SCR-01 to SCR-06 |
-| 4 App shell, design system & i18n | Not started | — |
+| 4 App shell, design system & i18n | Done | AC-65, AC-68, AC-69 passed; tokens/base/print CSS, components with /dev/components catalog, AppShell, AuthLayout, PlatformLayout, role/plan nav filters, i18next en/dz |
 | 5 Catalogue & settings | Not started | — |
 | 6 Inventory, customers & suppliers | Not started | — |
 | 7 POS & receipts | Not started | — |
