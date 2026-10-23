@@ -120,14 +120,14 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 6
 - **Tasks:**
-  - [ ] `GET /pos/products`, `/pos/products/by-barcode/:barcode`, `/pos/customers`
-  - [ ] Zustand cart store (sessionStorage) using the shared engine for live totals
-  - [ ] SCR-08 left column: scan box with persistent focus, search with Enter behavior, product table, low-stock banner
-  - [ ] SCR-08 billing card: cart editing, customer select with automatic discount, bill discount, charges, order type and table, add-payment modal with validation (BR-17, BR-18, BR-19)
-  - [ ] `POST /sales` per BR-21 with row locks, `PRICE_CHANGED`, `INSUFFICIENT_STOCK`, idempotency, warnings
-  - [ ] Held orders API and UI (BR-29)
-  - [ ] SCR-09 receipt (BR-36), barcode component, print CSS, jsPDF 80 mm PDF
-  - [ ] Seed: generate 30 days of demo sales through `completeSale` (completes F-25 seed)
+  - [x] `GET /pos/products`, `/pos/products/by-barcode/:barcode`, `/pos/customers`
+  - [x] Zustand cart store (sessionStorage) using the shared engine for live totals
+  - [x] SCR-08 left column: scan box with persistent focus, search with Enter behavior, product table, low-stock banner
+  - [x] SCR-08 billing card: cart editing, customer select with automatic discount, bill discount, charges, order type and table, add-payment modal with validation (BR-17, BR-18, BR-19)
+  - [x] `POST /sales` per BR-21 with row locks, `PRICE_CHANGED`, `INSUFFICIENT_STOCK`, idempotency, warnings
+  - [x] Held orders API and UI (BR-29)
+  - [x] SCR-09 receipt (BR-36), barcode component, print CSS, jsPDF 80 mm PDF
+  - [x] Seed: generate 30 days of demo sales through `completeSale` (completes F-25 seed)
 - **Deliverables:** end-to-end selling with receipts.
 - **Acceptance:** AC-26 to AC-36, AC-39, AC-40, AC-48, AC-61.
 

@@ -22,6 +22,9 @@ import { InventoryScreen } from './screens/InventoryScreen.js';
 import { CustomersScreen } from './screens/CustomersScreen.js';
 import { SuppliersScreen } from './screens/SuppliersScreen.js';
 
+// Phase 7 Screen: SCR-08 POS
+import { PosScreen } from './screens/PosScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -80,12 +83,7 @@ export const router = createBrowserRouter([
         path: '/app/pos',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-08"
-              title="Point of Sale"
-              description="Real-time scan box, product tiles, customer selection, discounts, and multi-wallet checkout."
-              phaseNumber={7}
-            />
+            <PosScreen />
           </ProtectedRoute>
         ),
       },

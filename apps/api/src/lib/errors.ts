@@ -52,6 +52,14 @@ export class AppError extends Error {
     return new AppError(400, 'VALIDATION_ERROR', message, details);
   }
 
+  static badRequest(message = 'Invalid request', details?: Record<string, unknown>): AppError {
+    return new AppError(400, 'VALIDATION_ERROR', message, details);
+  }
+
+  static unprocessable(message = 'Unprocessable entity', details?: Record<string, unknown>): AppError {
+    return new AppError(422, 'VALIDATION_ERROR', message, details);
+  }
+
   static unauthenticated(message = 'Authentication required'): AppError {
     return new AppError(401, 'UNAUTHENTICATED', message);
   }
@@ -138,6 +146,34 @@ export class AppError extends Error {
 
   static paymentDetailsRequired(message = 'Payment details required'): AppError {
     return new AppError(422, 'PAYMENT_DETAILS_REQUIRED', message);
+  }
+
+  static priceChanged(
+    message = 'One or more product prices have changed',
+    details?: Record<string, unknown>
+  ): AppError {
+    return new AppError(409, 'PRICE_CHANGED', message, details);
+  }
+
+  static paymentMismatch(
+    message = 'Payments do not match sale total',
+    details?: Record<string, unknown>
+  ): AppError {
+    return new AppError(422, 'PAYMENT_MISMATCH', message, details);
+  }
+
+  static creditRequiresCustomer(
+    message = 'Select a customer before adding a credit payment'
+  ): AppError {
+    return new AppError(422, 'CREDIT_REQUIRES_CUSTOMER', message);
+  }
+
+  static notBillable(message = 'Order is not in a billable state'): AppError {
+    return new AppError(409, 'NOT_BILLABLE', message);
+  }
+
+  static alreadyVoided(message = 'Sale is already voided'): AppError {
+    return new AppError(409, 'ALREADY_VOIDED', message);
   }
 
   static internal(message = 'An unexpected internal error occurred'): AppError {

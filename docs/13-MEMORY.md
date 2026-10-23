@@ -156,4 +156,16 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
   - Suppliers API (`GET/POST /suppliers`, `PATCH /suppliers/:id`) with computed `paidTotal` and `outstandingTotal` aggregating opening balances and purchase invoices (`BR-38`, `AC-50`).
   - Full UI screens: `InventoryScreen.tsx` (SCR-12), `CustomersScreen.tsx` (SCR-18), and `SuppliersScreen.tsx` (SCR-19) mounted in `router.tsx`.
   - All 9 Phase 6 integration tests passing cleanly; 106/106 tests green across monorepo (`AC-22`–`AC-24`, `AC-49`, `AC-50`).
-  - Next: Phase 7 — POS & receipts.
+  - 2026-10-23 — **Phase 7 (POS & receipts) completed**:
+  - Backend POS catalog API (`GET /pos/products`, `GET /pos/products/by-barcode/:barcode` `AC-26`, `GET /pos/customers` with customer-type discount % attached `AC-48`).
+  - Transactional checkout API (`POST /sales`) per `BR-21`: concurrency-safe `INV-YYYY-NNNNN` sequence (`BR-23`), product row locking, server-recalculated money engine matching `@pos/shared/src/money/engine.ts` (`AC-28`, `AC-29`), payment validation (`BR-17`–`BR-19`), `sale` stock movements (`BR-25`, `AC-36`), customer total spent and credit updates (`AC-35`), idempotency replay (`withIdempotency`, `AC-34`), price change detection (`409 PRICE_CHANGED`, `AC-32`), and non-blocking warnings (`CREDIT_LIMIT_EXCEEDED`, `LOW_STOCK`).
+  - Receipt details API (`GET /sales/:id`) and void transaction API (`POST /sales/:id/void`) per `BR-24` and `AC-39` (restocks tracked items with `void_restock` movements, rolls back customer balance, marks sale voided).
+  - Held orders API (`GET /held-orders`, `POST /held-orders`, `POST /held-orders/:id/resume`, `DELETE /held-orders/:id`) per `BR-29` and `AC-33`.
+  - Frontend Zustand cart store (`apps/web/src/stores/cartStore.ts`) persisted to `sessionStorage` with live math derived from the shared money engine.
+  - POS Screen `SCR-08` (`apps/web/src/screens/PosScreen.tsx`): barcode scan box with persistent focus, catalog search and category pills, cart table with inline discounts, customer dropdown with customer-type discounts, bill discount, and charges.
+  - Payment Modal (`PaymentModal.tsx`): multi-method split checkout (`cash`, `mbob`, `bnb_mPay`, `tPay`, `credit`), quick cash buttons, change calculation, wallet Txn ID validation, credit limit warning banner.
+  - Held Orders Modal (`HeldOrdersModal.tsx`): hold, browse, and resume paused carts.
+  - Receipt Modal `SCR-09` (`ReceiptModal.tsx`): 80 mm thermal print layout (`@media print`), barcode indicator, and jsPDF 80 mm ticket download (`AC-40`).
+  - Seed expansion: 30 days of realistic sales generated for demo businesses using `computeSale` domain logic (`F-25`).
+  - Integration tests: 10 tests in `apps/api/src/routes/sales.test.ts` covering `AC-26`–`AC-36`, `AC-39`, `AC-40`, `AC-48`. All 10 passed; 116 tests passing across monorepo.
+  - Next: Phase 8 — Invoices, void & payments.

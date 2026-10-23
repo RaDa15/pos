@@ -14,8 +14,15 @@ import {
   ExpenseCategory,
   ExpensePaymentMethod,
   CounterName,
+  SaleStatus,
+  PaymentStatus,
+  PaymentKind,
+  PaymentMethod,
+  OrderType,
 } from '@prisma/client';
 import { env } from '../src/config/env.js';
+import { computeSale, nuToChhertum, chhertumToNu } from '@pos/shared';
+import { nextNumber } from '../src/lib/counters.js';
 
 const prisma = new PrismaClient();
 
@@ -508,10 +515,166 @@ async function cleanDemoBusiness(businessId: string) {
       ],
     });
 
+    // Seed 30 days of realistic sales (F-25)
+    await seedDemoSales(bizId, adminEmployeeId, demo.type === BusinessType.restaurant);
+
     console.log(`✓ Seeded demo business: ${demo.name} (${demo.type})`);
   }
 
   console.log('--- Database Seeding Complete ---');
+}
+
+async function seedDemoSales(bizId: string, adminId: string, isRestaurant: boolean) {
+  const existingCount = await prisma.sale.count({ where: { businessId: bizId } });
+  if (existingCount > 0) {
+    return;
+  }
+
+  const products = await prisma.product.findMany({
+    where: { businessId: bizId, active: true },
+    include: { taxRate: true },
+  });
+  if (products.length === 0) return;
+
+  const customers = await prisma.customer.findMany({
+    where: { businessId: bizId, active: true },
+  });
+
+  const now = new Date();
+
+  // 30 days of sales (from 29 days ago up to today)
+  for (let dayOffset = 29; dayOffset >= 0; dayOffset--) {
+    const saleDate = new Date(now.getTime() - dayOffset * 24 * 60 * 60 * 1000);
+    const bttTime = new Date(saleDate.getTime() + 6 * 60 * 60 * 1000);
+    const invoiceYear = bttTime.getUTCFullYear();
+    const businessDate = new Date(Date.UTC(bttTime.getUTCFullYear(), bttTime.getUTCMonth(), bttTime.getUTCDate()));
+
+    // 2 to 4 sales per day
+    const salesPerDay = 2 + ((dayOffset * 7) % 3);
+
+    for (let s = 0; s < salesPerDay; s++) {
+      // Pick 1 to 3 products
+      const lineCount = 1 + ((s + dayOffset) % 3);
+      const selectedProducts: typeof products = [];
+      for (let l = 0; l < lineCount; l++) {
+        const prod = products[(dayOffset * 3 + s + l) % products.length]!;
+        if (!selectedProducts.includes(prod)) {
+          selectedProducts.push(prod);
+        }
+      }
+
+      // Pick optional customer (every 3rd sale)
+      const customer = s % 3 === 1 && customers.length > 0
+        ? customers[(dayOffset + s) % customers.length]!
+        : null;
+
+      const saleResult = computeSale({
+        lines: selectedProducts.map((p, idx) => ({
+          unitPrice: nuToChhertum(Number(p.sellPrice)),
+          qty: 1 + (idx % 2),
+          lineDiscount: 0,
+          taxRate: Number(p.taxRate.rate),
+          taxMode: p.taxRate.mode,
+          taxCategory: p.taxRate.category,
+        })),
+        customerTypePct: 0,
+        charges: 0,
+        gstRegistered: true,
+      });
+
+      const totalNu = chhertumToNu(saleResult.total);
+
+      const { value: seq, formatted: invoiceNo } = await nextNumber(
+        prisma,
+        bizId,
+        CounterName.invoice,
+        invoiceYear
+      );
+
+      const method = s % 2 === 0 ? PaymentMethod.cash : PaymentMethod.mbob;
+
+      const sale = await prisma.sale.create({
+        data: {
+          businessId: bizId,
+          invoiceNo,
+          invoiceYear,
+          invoiceSeq: seq,
+          status: SaleStatus.completed,
+          completedAt: saleDate,
+          businessDate,
+          cashierId: adminId,
+          customerId: customer?.id ?? null,
+          customerType: customer?.type ?? null,
+          orderType: isRestaurant ? OrderType.dine_in : OrderType.walk_in,
+          tableNo: isRestaurant ? String(1 + ((s + dayOffset) % 6)) : null,
+          gstRegistered: true,
+          subtotal: chhertumToNu(saleResult.subtotal),
+          discountTotal: chhertumToNu(saleResult.discountTotal),
+          customerTypePct: 0,
+          customerTypeAmt: 0,
+          billDiscountAmt: 0,
+          taxableAmount: chhertumToNu(saleResult.taxableAmount),
+          taxAmount: chhertumToNu(saleResult.taxAmount),
+          charges: 0,
+          total: totalNu,
+          amountPaid: totalNu,
+          creditAmount: 0,
+          paymentSummary: method === PaymentMethod.cash ? 'Cash' : 'mBoB',
+        },
+      });
+
+      for (let i = 0; i < saleResult.lines.length; i++) {
+        const resLine = saleResult.lines[i]!;
+        const p = selectedProducts[i]!;
+
+        await prisma.saleItem.create({
+          data: {
+            saleId: sale.id,
+            businessId: bizId,
+            lineNo: i + 1,
+            productId: p.id,
+            name: p.name,
+            barcode: p.barcode,
+            category: p.category,
+            unitPrice: chhertumToNu(resLine.unitPrice),
+            qty: resLine.qty,
+            lineDiscount: 0,
+            allocatedDiscount: 0,
+            taxRate: resLine.taxRate,
+            taxMode: resLine.taxMode,
+            taxCategory: resLine.taxCategory,
+            taxable: chhertumToNu(resLine.taxable),
+            tax: chhertumToNu(resLine.tax),
+            total: chhertumToNu(resLine.total),
+            unitCost: Number(p.purchasePrice),
+            trackStock: p.trackStock,
+          },
+        });
+      }
+
+      await prisma.payment.create({
+        data: {
+          businessId: bizId,
+          kind: PaymentKind.sale,
+          saleId: sale.id,
+          method,
+          amount: totalNu,
+          journalNo: method === PaymentMethod.mbob ? `MB${10000000 + s * 100 + dayOffset}` : null,
+          status: PaymentStatus.completed,
+          businessDate,
+          createdBy: adminId,
+          createdAt: saleDate,
+        },
+      });
+
+      if (customer) {
+        await prisma.customer.update({
+          where: { id: customer.id },
+          data: { totalSpent: { increment: totalNu } },
+        });
+      }
+    }
+  }
 }
 
 // Run directly if called as a script

@@ -179,3 +179,8 @@ export const api = {
 };
 
 export const apiClient = api;
+export const apiGet = api.get;
+export const apiPost = api.post;
+export const apiPut = api.put;
+export const apiPatch = api.patch;
+export const apiDelete = api.delete;

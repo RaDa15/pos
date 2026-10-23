@@ -19,6 +19,9 @@ import { productsRouter } from './routes/products.js';
 import { inventoryRouter, stockMovementsRouter } from './routes/inventory.js';
 import { customersRouter } from './routes/customers.js';
 import { suppliersRouter } from './routes/suppliers.js';
+import { posRouter } from './routes/pos.js';
+import { salesRouter } from './routes/sales.js';
+import { heldOrdersRouter } from './routes/held-orders.js';
 
 export function createApp(): Express {
   const app = express();
@@ -68,6 +71,9 @@ export function createApp(): Express {
   app.use('/api/v1/stock-movements', stockMovementsRouter);
   app.use('/api/v1/customers', customersRouter);
   app.use('/api/v1/suppliers', suppliersRouter);
+  app.use('/api/v1/pos', posRouter);
+  app.use('/api/v1/sales', salesRouter);
+  app.use('/api/v1/held-orders', heldOrdersRouter);
 
   // Centralized Error Handler (07-API-SPEC.md §2)
   app.use(errorHandler);
