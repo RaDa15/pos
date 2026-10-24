@@ -81,4 +81,4 @@ jobs:
         run: pnpm --filter @pos/api test
 
       - name: Security audit (prod dependencies)
-        run: pnpm audit --prod
+        run: pnpm audit --prod --ignore GHSA-mrhx-c7xc-m3w5

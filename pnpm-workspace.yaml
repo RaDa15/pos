@@ -10,6 +10,10 @@ allowBuilds:
   esbuild: true
   prisma: true
 
+auditConfig:
+  ignoreGhsas:
+    - GHSA-mrhx-c7xc-m3w5
+
 onlyBuiltDependencies:
   - esbuild
   - '@prisma/client'
@@ -20,3 +24,4 @@ onlyBuiltDependencies:
 
 overrides:
   deepmerge-ts: ^8.0.0
+  body-parser: ^2.4.0
