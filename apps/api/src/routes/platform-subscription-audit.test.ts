@@ -60,18 +60,6 @@ describe('Phase 11: Subscription, Plan Limits & Platform Admin Integration Tests
     adminCsrf = adminSession.csrfToken;
   });
 
-  afterAll(async () => {
-    // Restore grocery subscription to clean state
-    await prisma.subscription.update({
-      where: { businessId: groceryBiz.id },
-      data: {
-        plan: PlanCode.enterprise,
-        status: SubscriptionStatus.active,
-        expiresAt: new Date(Date.now() + 30 * 24 * 3600 * 1000),
-      },
-    });
-  });
-
   // ==========================================================================
   // AC-04: Expired subscription blocks operational routes
   // ==========================================================================
