@@ -254,3 +254,5 @@ export function requireRestaurant(req: Request, _res: Response, next: NextFuncti
   }
   next();
 }
+
+export const requireAuth = requireEmployee;

@@ -155,10 +155,10 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phases 8 and 9
 - **Tasks:**
-  - [ ] Expenses API and SCR-20 (BR-39)
-  - [ ] `GET /dashboard` per lens (server returns only the lens's data) and SCR-07 with charts
-  - [ ] GST report API, CSV exports, SCR-16 with working print (BR-30, BR-33)
-  - [ ] Sales report API with estimated profit (BR-32) and SCR-17
+  - [x] Expenses API and SCR-20 (BR-39)
+  - [x] `GET /dashboard` per lens (server returns only the lens's data) and SCR-07 with charts
+  - [x] GST report API, CSV exports, SCR-16 with working print (BR-30, BR-33)
+  - [x] Sales report API with estimated profit (BR-32) and SCR-17
 - **Deliverables:** all reporting.
 - **Acceptance:** AC-15, AC-16, AC-43, AC-44, AC-45, AC-47, AC-51.
 

@@ -136,6 +136,7 @@ async function cleanDemoBusiness(businessId: string) {
   await prisma.purchase.deleteMany({ where: { businessId } });
   await prisma.stockMovement.deleteMany({ where: { businessId } });
   await prisma.expense.deleteMany({ where: { businessId } });
+  await prisma.auditLog.deleteMany({ where: { businessId } });
   await prisma.counter.deleteMany({ where: { businessId } });
   await prisma.customerTypeDiscount.deleteMany({ where: { businessId } });
   await prisma.customer.deleteMany({ where: { businessId } });

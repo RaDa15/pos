@@ -33,6 +33,11 @@ import { PaymentsScreen } from './screens/PaymentsScreen.js';
 // Phase 9 Screen: SCR-10 Kitchen Board
 import { KitchenBoardScreen } from './screens/KitchenBoardScreen.js';
 
+// Phase 10 Screens: SCR-16 GST Report, SCR-17 Sales Report, SCR-20 Expenses
+import { GstReportScreen } from './screens/GstReportScreen.js';
+import { SalesReportScreen } from './screens/SalesReportScreen.js';
+import { ExpensesScreen } from './screens/ExpensesScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -168,12 +173,7 @@ export const router = createBrowserRouter([
         path: '/app/reports/gst',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-16"
-              title="GST Returns & Tax Report"
-              description="DRC-compliant tax breakdown (Standard 5%, Exempt 0%, Zero 0%) with daily CSV exports."
-              phaseNumber={9}
-            />
+            <GstReportScreen />
           </ProtectedRoute>
         ),
       },
@@ -181,12 +181,7 @@ export const router = createBrowserRouter([
         path: '/app/reports/sales',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-17"
-              title="Sales & Profit Analytics"
-              description="Sales trends, revenue charts, profit analysis, and top-selling product breakdowns."
-              phaseNumber={9}
-            />
+            <SalesReportScreen />
           </ProtectedRoute>
         ),
       },
@@ -210,12 +205,7 @@ export const router = createBrowserRouter([
         path: '/app/expenses',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-20"
-              title="Operating Expenses"
-              description="Record store and restaurant operating expenses with categories, payment methods, and receipts."
-              phaseNumber={6}
-            />
+            <ExpensesScreen />
           </ProtectedRoute>
         ),
       },
