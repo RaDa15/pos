@@ -74,7 +74,7 @@ describe('Phase 10 — Dashboard, Reports & Expenses (AC-15, AC-16, AC-43, AC-44
       const todayStr = bttDate.toISOString().slice(0, 10);
       const businessDate = new Date(`${todayStr}T00:00:00.000Z`);
 
-      const cashier = groceryBiz.employees.find((e) => e.username === 'cashier1');
+      const cashier = groceryBiz.employees.find((e) => e.username === 'cashier1')!;
 
       // Sever mutual FKs before deleting sales
       await prisma.sale.updateMany({
@@ -272,7 +272,7 @@ describe('Phase 10 — Dashboard, Reports & Expenses (AC-15, AC-16, AC-43, AC-44
 
   describe('AC-43 & AC-44 & AC-45: GST Reports & Exports', () => {
     it('AC-44: Asia/Thimphu 23:30 cutoff is included on 3 Nov, not on 4 Nov', async () => {
-      const cashier = groceryBiz.employees.find((e) => e.username === 'cashier1');
+      const cashier = groceryBiz.employees.find((e) => e.username === 'cashier1')!;
       const testProduct = await prisma.product.findFirst({
         where: { businessId: groceryBiz.id, active: true },
       });
@@ -388,7 +388,7 @@ describe('Phase 10 — Dashboard, Reports & Expenses (AC-15, AC-16, AC-43, AC-44
 
   describe('AC-47: Sales & Estimated Profit Report', () => {
     it('Estimated profit = taxable 358.50 + charges 20.00 - unit cost 250.00 - expense 50.00 = 78.50', async () => {
-      const cashier = groceryBiz.employees.find((e) => e.username === 'cashier1');
+      const cashier = groceryBiz.employees.find((e) => e.username === 'cashier1')!;
       const testProduct = await prisma.product.findFirst({
         where: { businessId: groceryBiz.id, active: true },
       });
@@ -508,7 +508,7 @@ describe('Phase 10 — Dashboard, Reports & Expenses (AC-15, AC-16, AC-43, AC-44
           category: 'maintenance',
           amount: new Prisma.Decimal(1200.0),
           businessDate: new Date('2026-10-20T00:00:00.000Z'),
-          createdBy: groceryBiz.employees[0].id,
+          createdBy: groceryBiz.employees[0]!.id,
         },
       });
 
