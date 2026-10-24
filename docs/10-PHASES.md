@@ -145,9 +145,9 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 7
 - **Tasks:**
-  - [ ] Kitchen orders API with `KOT-NNNN`, state machine (`02` §4.1), billable list
-  - [ ] SCR-10 board with polling and horizontal scroll on tablets
-  - [ ] POS: "Send to kitchen" modal, "Bill a kitchen order" dropdown, link sale ↔ order on completion
+  - [x] Kitchen orders API with `KOT-NNNN`, state machine (`02` §4.1), billable list
+  - [x] SCR-10 board with polling and horizontal scroll on tablets
+  - [x] POS: "Send to kitchen" modal, "Bill a kitchen order" dropdown, link sale ↔ order on completion
 - **Deliverables:** restaurant flow J4 works end to end.
 - **Acceptance:** AC-37, AC-38.
 

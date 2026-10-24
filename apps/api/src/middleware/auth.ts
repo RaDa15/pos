@@ -241,3 +241,16 @@ export function requirePlanFeature(feature: PlanFeature) {
     next();
   };
 }
+
+/**
+ * Middleware: requires business type to be restaurant (AC-37).
+ */
+export function requireRestaurant(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.business) {
+    throw AppError.unauthenticated();
+  }
+  if (req.business.type !== 'restaurant') {
+    throw AppError.forbidden('Kitchen orders are only available for restaurant businesses.');
+  }
+  next();
+}

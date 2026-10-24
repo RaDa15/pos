@@ -133,6 +133,16 @@ interface CartStoreState {
     tableNo?: string | null;
     kitchenOrderId?: string | null;
   }, heldOrderId?: string) => void;
+  loadKitchenOrder: (order: {
+    id: string;
+    orderType: string;
+    tableNo: string | null;
+    customer?: CustomerOption | null;
+    items: Array<{
+      product: CartProduct;
+      qty: number;
+    }>;
+  }) => void;
 
   // Selectors
   getTotals: () => CartTotals;
@@ -296,6 +306,30 @@ export const useCartStore = create<CartStoreState>()(
           tableNo: payload.tableNo || null,
           kitchenOrderId: payload.kitchenOrderId || null,
           heldOrderId: heldOrderId || null,
+        });
+      },
+
+      loadKitchenOrder: (order) => {
+        set({
+          lines: order.items.map((i) => ({
+            productId: i.product.id,
+            name: i.product.name,
+            barcode: i.product.barcode,
+            unit: i.product.unit,
+            unitPrice: i.product.sellPrice,
+            qty: i.qty,
+            lineDiscount: 0,
+            taxRate: i.product.taxRate.rate,
+            taxMode: i.product.taxRate.mode,
+            taxCategory: i.product.taxRate.category,
+            stock: i.product.stock,
+            trackStock: i.product.trackStock,
+          })),
+          customer: order.customer || null,
+          orderType: order.orderType,
+          tableNo: order.tableNo,
+          kitchenOrderId: order.id,
+          heldOrderId: null,
         });
       },
 

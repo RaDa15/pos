@@ -9,6 +9,8 @@ import {
 import { PaymentModal } from '../components/pos/PaymentModal';
 import { HeldOrdersModal } from '../components/pos/HeldOrdersModal';
 import { ReceiptModal, ReceiptSaleData } from '../components/pos/ReceiptModal';
+import { SendToKitchenModal } from '../components/pos/SendToKitchenModal';
+import { BillKitchenOrderModal } from '../components/pos/BillKitchenOrderModal';
 
 export const PosScreen: React.FC = () => {
   const { business } = useAuth();
@@ -22,6 +24,7 @@ export const PosScreen: React.FC = () => {
     charges,
     orderType,
     tableNo,
+    kitchenOrderId,
     heldOrderId,
     addItem,
     updateQty,
@@ -33,6 +36,7 @@ export const PosScreen: React.FC = () => {
     setCharges,
     setOrderType,
     setTableNo,
+    setKitchenOrderId,
     setGstRegistered,
     getTotals,
   } = useCartStore();
@@ -46,10 +50,13 @@ export const PosScreen: React.FC = () => {
   const [barcodeInput, setBarcodeInput] = useState('');
   const [barcodeLoading, setBarcodeLoading] = useState(false);
   const [heldOrdersCount, setHeldOrdersCount] = useState(0);
+  const [billableOrdersCount, setBillableOrdersCount] = useState(0);
 
   // Modals
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isHeldOpen, setIsHeldOpen] = useState(false);
+  const [isKitchenSendOpen, setIsKitchenSendOpen] = useState(false);
+  const [isBillKitchenOpen, setIsBillKitchenOpen] = useState(false);
   const [completedSale, setCompletedSale] = useState<ReceiptSaleData | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isSubmittingSale, setIsSubmittingSale] = useState(false);
@@ -71,7 +78,7 @@ export const PosScreen: React.FC = () => {
         activeEl?.tagName === 'INPUT' ||
         activeEl?.tagName === 'SELECT' ||
         activeEl?.tagName === 'TEXTAREA';
-      if (!isInput && !isPaymentOpen && !isHeldOpen && !completedSale) {
+      if (!isInput && !isPaymentOpen && !isHeldOpen && !isKitchenSendOpen && !isBillKitchenOpen && !completedSale) {
         scanInputRef.current?.focus();
       }
     };
@@ -79,7 +86,7 @@ export const PosScreen: React.FC = () => {
     focusScanner();
     const interval = setInterval(focusScanner, 2000);
     return () => clearInterval(interval);
-  }, [isPaymentOpen, isHeldOpen, completedSale]);
+  }, [isPaymentOpen, isHeldOpen, isKitchenSendOpen, isBillKitchenOpen, completedSale]);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setToastMessage({ text, type });
@@ -124,11 +131,25 @@ export const PosScreen: React.FC = () => {
     }
   };
 
+  // Fetch billable kitchen orders count for restaurants
+  const fetchBillableOrdersCount = async () => {
+    if (business?.type !== 'restaurant') return;
+    try {
+      const res = await apiGet<{ data: unknown[] }>('/api/v1/kitchen-orders/billable');
+      if (res && res.data) {
+        setBillableOrdersCount(res.data.length);
+      }
+    } catch {
+      // Ignore
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchCustomers();
     fetchHeldOrdersCount();
-  }, []);
+    fetchBillableOrdersCount();
+  }, [business?.type]);
 
   // Barcode Scanner submission handler (AC-26)
   const handleBarcodeSubmit = async (e: React.FormEvent) => {
@@ -200,6 +221,7 @@ export const PosScreen: React.FC = () => {
           orderType,
           tableNo: orderType === 'dine_in' ? tableNo : null,
           customerId: customer?.id || null,
+          kitchenOrderId: kitchenOrderId || null,
           heldOrderId: heldOrderId || null,
           lines: lines.map((l) => ({
             productId: l.productId,
@@ -232,6 +254,7 @@ export const PosScreen: React.FC = () => {
         clearCart();
         fetchProducts(); // Refresh stock
         fetchHeldOrdersCount();
+        fetchBillableOrdersCount();
       }
     } catch (err: unknown) {
       const errorObj = err as { code?: string; message?: string; details?: { newPrice?: number; name?: string } };
@@ -423,20 +446,55 @@ export const PosScreen: React.FC = () => {
               </span>
             </div>
 
-            {/* Held Orders Trigger */}
-            <button
-              type="button"
-              onClick={() => setIsHeldOpen(true)}
-              className="text-xs font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition"
-            >
-              <span>📥 Held Orders</span>
-              {heldOrdersCount > 0 && (
-                <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
-                  {heldOrdersCount}
-                </span>
+            <div className="flex items-center gap-1.5">
+              {business?.type === 'restaurant' && (
+                <button
+                  type="button"
+                  onClick={() => setIsBillKitchenOpen(true)}
+                  className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-300 rounded-lg shadow-sm hover:bg-emerald-100 transition"
+                  title="Bill a ready or served kitchen order"
+                >
+                  <span>📋 Bill KOT</span>
+                  {billableOrdersCount > 0 && (
+                    <span className="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                      {billableOrdersCount}
+                    </span>
+                  )}
+                </button>
               )}
-            </button>
+
+              {/* Held Orders Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsHeldOpen(true)}
+                className="text-xs font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition"
+              >
+                <span>📥 Held Orders</span>
+                {heldOrdersCount > 0 && (
+                  <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                    {heldOrdersCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Active Kitchen Order Linked Banner */}
+          {kitchenOrderId && (
+            <div className="flex items-center justify-between px-3 py-1.5 bg-amber-50 border border-amber-300 rounded-lg text-xs text-amber-900 shadow-sm animate-fade-in">
+              <span className="font-bold flex items-center gap-1.5">
+                <span>🍳</span> Billing Kitchen Order (Completing will close KOT)
+              </span>
+              <button
+                type="button"
+                onClick={() => setKitchenOrderId(null)}
+                className="text-[11px] font-bold text-amber-700 hover:text-rose-600 underline ml-2"
+                title="Unlink kitchen order from current cart"
+              >
+                Unlink ✕
+              </button>
+            </div>
+          )}
 
           {/* Customer Dropdown */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -658,15 +716,27 @@ export const PosScreen: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 flex gap-2">
+          <div className="pt-2 flex gap-1.5 flex-wrap">
             <button
               type="button"
               onClick={handleHoldOrder}
               disabled={lines.length === 0}
-              className="flex-1 py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-40"
+              className="flex-1 py-2.5 px-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-40"
+              title="Hold current cart order"
             >
               📥 Hold
             </button>
+            {business?.type === 'restaurant' && (
+              <button
+                type="button"
+                onClick={() => setIsKitchenSendOpen(true)}
+                disabled={lines.length === 0}
+                className="flex-1 py-2.5 px-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold shadow-sm transition disabled:opacity-40 flex items-center justify-center gap-1"
+                title="Send dishes to kitchen without billing yet"
+              >
+                <span>🍳</span> Kitchen
+              </button>
+            )}
             <button
               type="button"
               onClick={() => {
@@ -674,6 +744,7 @@ export const PosScreen: React.FC = () => {
               }}
               disabled={lines.length === 0}
               className="py-2.5 px-3 bg-gray-100 hover:bg-rose-50 hover:text-rose-600 text-gray-600 rounded-xl text-xs font-semibold transition disabled:opacity-40"
+              title="Clear all cart lines"
             >
               Clear
             </button>
@@ -681,7 +752,7 @@ export const PosScreen: React.FC = () => {
               type="button"
               onClick={() => setIsPaymentOpen(true)}
               disabled={lines.length === 0}
-              className="flex-[2] py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-[2] min-w-[140px] py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>💳</span> Pay Nu. {totals.total.toFixed(2)}
             </button>
@@ -710,6 +781,29 @@ export const PosScreen: React.FC = () => {
           onOrderResumed={() => {
             fetchHeldOrdersCount();
             showToast('Order restored into cart', 'success');
+          }}
+        />
+      )}
+
+      {/* Send to Kitchen Modal */}
+      {isKitchenSendOpen && (
+        <SendToKitchenModal
+          isOpen={isKitchenSendOpen}
+          onClose={() => setIsKitchenSendOpen(false)}
+          onOrderSent={(orderNo) => {
+            fetchBillableOrdersCount();
+            showToast(`${orderNo} sent to kitchen.`, 'success');
+          }}
+        />
+      )}
+
+      {/* Bill Kitchen Order Modal */}
+      {isBillKitchenOpen && (
+        <BillKitchenOrderModal
+          isOpen={isBillKitchenOpen}
+          onClose={() => setIsBillKitchenOpen(false)}
+          onOrderSelected={(orderNo) => {
+            showToast(`Loaded ${orderNo} into cart for billing`, 'success');
           }}
         />
       )}

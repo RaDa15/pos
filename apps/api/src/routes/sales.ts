@@ -22,6 +22,7 @@ import {
   BillDiscountType,
   OrderType,
   CustomerType,
+  KitchenStatus,
   Prisma,
 } from '@prisma/client';
 
@@ -395,6 +396,19 @@ salesRouter.post('/', requirePermission('pos.sell'), async (req: Request, res: R
           customerTypePct = discountConfig ? Number(discountConfig.discountPct) : 0;
         }
 
+        // 3b. Validate Kitchen Order if billing one (AC-38)
+        if (body.kitchenOrderId) {
+          const kot = await tx.kitchenOrder.findFirst({
+            where: { id: body.kitchenOrderId, businessId },
+          });
+          if (!kot) {
+            throw AppError.notFound('Kitchen order not found');
+          }
+          if (kot.billed || kot.status === KitchenStatus.cancelled) {
+            throw AppError.notBillable(`Kitchen order ${kot.orderNo} is already billed or cancelled`);
+          }
+        }
+
         // 4. Calculate totals with shared financial engine (BR-16, AC-29)
         const saleResult = computeSale({
           lines: body.lines.map((l) => {
@@ -674,7 +688,7 @@ salesRouter.post('/', requirePermission('pos.sell'), async (req: Request, res: R
           await tx.kitchenOrder.update({
             where: { id: body.kitchenOrderId },
             data: {
-              status: 'served',
+              status: KitchenStatus.served,
               billed: true,
               saleId: sale.id,
             },

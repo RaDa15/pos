@@ -30,6 +30,9 @@ import { InvoicesScreen } from './screens/InvoicesScreen.js';
 import { ReceiptScreen } from './screens/ReceiptScreen.js';
 import { PaymentsScreen } from './screens/PaymentsScreen.js';
 
+// Phase 9 Screen: SCR-10 Kitchen Board
+import { KitchenBoardScreen } from './screens/KitchenBoardScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -104,12 +107,7 @@ export const router = createBrowserRouter([
         path: '/app/kitchen',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-10"
-              title="Kitchen Orders Board"
-              description="Live KOT orders board with columns for New, Accepted, Preparing, and Ready tickets."
-              phaseNumber={9}
-            />
+            <KitchenBoardScreen />
           </ProtectedRoute>
         ),
       },

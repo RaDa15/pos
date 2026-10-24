@@ -168,6 +168,10 @@ export class AppError extends Error {
     return new AppError(422, 'CREDIT_REQUIRES_CUSTOMER', message);
   }
 
+  static invalidTransition(message = 'Invalid kitchen order status transition'): AppError {
+    return new AppError(409, 'INVALID_TRANSITION', message);
+  }
+
   static notBillable(message = 'Order is not in a billable state'): AppError {
     return new AppError(409, 'NOT_BILLABLE', message);
   }

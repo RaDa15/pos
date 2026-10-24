@@ -6,11 +6,11 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 9 — Kitchen orders |
-| Status | Phase 8 completed, Phase 9 ready |
-| Last updated | 2026-10-23 |
-| Next step | Phase 9: Kitchen orders API with KOT-NNNN, state machine, billable list, SCR-10 kitchen board, POS kitchen integration |
-| Blockers | None for Phases 0–9. Open questions in `docs/README.md` must be answered before the phases marked there |
+| Current phase | Phase 10 — Dashboard, reports & expenses |
+| Status | Phase 9 completed, Phase 10 ready |
+| Last updated | 2026-10-24 |
+| Next step | Phase 10: Dashboard per lens (SCR-07), GST report (SCR-16), Sales & profit report (SCR-17), Expenses API & SCR-20 |
+| Blockers | None for Phases 0–10. Open questions in `docs/README.md` must be answered before the phases marked there |
 
 ## Phase progress
 
@@ -25,7 +25,7 @@ The project's living log. AI sessions forget everything between chats; this file
 | 6 Inventory, customers & suppliers | Done | AC-22..24, AC-49, AC-50 passed; stock movements & alerts, customer credit & settlements (CR-NNNN), suppliers |
 | 7 POS & receipts | Done | AC-26..36, AC-39, AC-40, AC-48, AC-61 passed; checkout, INV sequence, held orders, jsPDF 80mm receipt |
 | 8 Invoices, void & payments | Done | AC-41, AC-42, AC-46 passed; invoices search/filters, role-gated void with restock/balance rollback/KOT unbill, payments report & CSV export |
-| 9 Kitchen orders | Not started | — |
+| 9 Kitchen orders | Done | AC-37, AC-38 passed; KOT-NNNN counter, restaurant gating (403 for non-restaurant), state machine (409 for invalid transitions), SCR-10 Kanban board with auto-polling, POS Send-to-Kitchen & Bill-KOT |
 | 10 Dashboard, reports & expenses | Not started | — |
 | 11 Subscription, plans & platform admin | Not started | — |
 | 12 Purchases & data import/export | Not started | — |
@@ -179,4 +179,27 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
     - `PaymentsScreen.tsx` (`SCR-15` at `/app/reports/payments` and `/app/payments`): date preset selectors (today, yesterday, 7 days, this month, this year, custom), KPI cards (Total Received, Cash, mBoB, mPay, T-Pay, On Credit, Settlements), payments table, and CSV download trigger.
   - Tests: 4 integration tests in `apps/api/src/routes/invoices-payments.test.ts` verifying `GET /sales` filters, `AC-42` role permissions, `AC-41` void behavior (restock, balance rollback, KOT unbill, receipt VOID stamp), and `AC-46` payment reconciliation and CSV export.
   - 120/120 tests passing across monorepo (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 77).
-  - Next: Phase 9 — Kitchen orders.
+- 2026-10-24 — **Phase 9 (Kitchen orders) completed**:
+  - Gated kitchen endpoints to restaurant tenants via `requireRestaurant` middleware rejecting non-restaurants with `403 FORBIDDEN` (`AC-37`).
+  - Implemented sequential `KOT-NNNN` counter (`nextNumber(tx, businessId, CounterName.kot)`) without annual reset per `BR-28`.
+  - Implemented Kitchen Orders API (`apps/api/src/routes/kitchen-orders.ts` mounted at `/api/v1/kitchen-orders`):
+    - `GET /`: lists open orders and today's served/cancelled orders.
+    - `GET /billable`: returns orders in `ready` or `served` status where `billed = false`.
+    - `POST /`: transactional creation of order and items in `new` state with `KOT-NNNN` counter.
+    - `POST /:id/status`: enforces strict state machine (`new` → `accepted` → `preparing` → `ready` → `served`, or any open → `cancelled`), returning `409 INVALID_TRANSITION` on invalid/backward transitions, and preventing cancellation of billed orders (`AC-37`).
+  - POS integration in `apps/api/src/routes/sales.ts`: validates `kitchenOrderId` if provided, throws `409 NOT_BILLABLE` if already billed or cancelled (`AC-38`), and on sale completion marks order as `status: 'served', billed: true, saleId: sale.id`.
+  - Frontend Zustand cart store (`cartStore.ts`): added `loadKitchenOrder(order)` loading items, table number, order type, and attaching `kitchenOrderId`.
+  - POS UI components:
+    - `SendToKitchenModal.tsx`: modal to send cart items to kitchen with order type, table number, and instructions.
+    - `BillKitchenOrderModal.tsx`: modal to browse ready/served billable orders and load directly into POS cart.
+    - `PosScreen.tsx`: Send to Kitchen trigger, Bill KOT badge trigger with unbilled count, and active KOT linked banner with unlink button.
+  - SCR-10 Kitchen Display Board (`apps/web/src/screens/KitchenBoardScreen.tsx` mounted at `/app/kitchen`):
+    - 6-column Kanban board (New, Accepted, Preparing, Ready, Served, Cancelled).
+    - Auto-polling every 5 seconds (`refetchInterval: 5000`).
+    - Elapsed time badges with visual urgency styles.
+    - Forward step transition buttons, cancel modal with reason, and one-click "Bill" transition to POS.
+    - Tablet-friendly horizontal scroll layout.
+  - Tests: 2 integration tests in `apps/api/src/routes/kitchen-orders.test.ts` verifying full `AC-37` state machine, 403 grocery rejection, 409 transition guard, and `AC-38` cashier billing and double-billing rejection.
+  - 122/122 tests passing across monorepo (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 79).
+  - Next: Phase 10 — Dashboard, reports & expenses.
+
