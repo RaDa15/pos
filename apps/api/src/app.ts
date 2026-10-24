@@ -27,6 +27,9 @@ import { kitchenOrdersRouter } from './routes/kitchen-orders.js';
 import { expensesRouter } from './routes/expenses.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { reportsRouter } from './routes/reports.js';
+import { platformRouter } from './routes/platform.js';
+import { subscriptionRouter } from './routes/subscription.js';
+import { auditRouter } from './routes/audit.js';
 
 export function createApp(): Express {
   const app = express();
@@ -84,6 +87,9 @@ export function createApp(): Express {
   app.use('/api/v1/expenses', expensesRouter);
   app.use('/api/v1/dashboard', dashboardRouter);
   app.use('/api/v1/reports', reportsRouter);
+  app.use('/api/v1/platform', platformRouter);
+  app.use('/api/v1/subscription', subscriptionRouter);
+  app.use('/api/v1/audit-logs', auditRouter);
 
   // Centralized Error Handler (07-API-SPEC.md §2)
   app.use(errorHandler);

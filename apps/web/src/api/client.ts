@@ -134,7 +134,7 @@ export async function apiRequest<T = unknown>(
     const details = errorBody?.details;
     const requestId = errorBody?.requestId;
 
-    if (res.status === 401 && !url.includes('/api/v1/auth/')) {
+    if (res.status === 401 && !url.includes('/api/v1/auth/') && !url.includes('/api/v1/platform/')) {
       if (sessionExpiryHandler) {
         sessionExpiryHandler();
       }

@@ -44,7 +44,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   children,
 }) => {
   const { t } = useTranslation();
-  const { employee, business, subscription, logout } = useAuth();
+  const { employee, business, subscription, planFeatures, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -241,8 +241,7 @@ export const AppShell: React.FC<AppShellProps> = ({
     }
     // 3. Plan feature limit check
     if (item.planFeature) {
-      const allowedFeatures = (subscription as unknown as { allowedFeatures?: Record<string, boolean> })?.allowedFeatures;
-      if (allowedFeatures && allowedFeatures[item.planFeature] === false) {
+      if (planFeatures && planFeatures.length > 0 && !planFeatures.includes(item.planFeature)) {
         return false;
       }
     }
@@ -459,6 +458,42 @@ export const AppShell: React.FC<AppShellProps> = ({
       {/* Main Content Area */}
       <div className="main" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <OfflineBar />
+
+        {/* Subscription Expiry Warning Banner (Admin only, daysLeft <= 7 or expired) */}
+        {role === 'admin' && subscription && (effectiveStatus === 'expired' || (typeof subscription.daysLeft === 'number' && subscription.daysLeft <= 7)) && (
+          <div
+            style={{
+              backgroundColor: effectiveStatus === 'expired' ? '#FEE2E2' : '#FEF3C7',
+              color: effectiveStatus === 'expired' ? '#991B1B' : '#92400E',
+              borderBottom: `1px solid ${effectiveStatus === 'expired' ? '#FCA5A5' : '#FCD34D'}`,
+              padding: '10px 28px',
+              fontSize: '13px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '15px' }}>⚠</span>
+              <span>
+                {effectiveStatus === 'expired'
+                  ? 'Your subscription expired. Renew now.'
+                  : `Your subscription expires in ${subscription.daysLeft} ${subscription.daysLeft === 1 ? 'day' : 'days'}. Renew now.`}
+              </span>
+            </div>
+            <NavLink
+              to="/app/subscription"
+              style={{
+                color: effectiveStatus === 'expired' ? '#991B1B' : '#92400E',
+                textDecoration: 'underline',
+                fontWeight: 700,
+              }}
+            >
+              Pay & renew →
+            </NavLink>
+          </div>
+        )}
 
         {/* Topbar */}
         <header

@@ -1,6 +1,11 @@
 import { Router, type Request, type Response } from 'express';
 import { prisma } from '../db/client.js';
-import { requireEmployee, requirePermission } from '../middleware/auth.js';
+import {
+  requireEmployee,
+  requirePermission,
+  requireActiveSubscription,
+  requirePlanFeature,
+} from '../middleware/auth.js';
 import { parseRangeToUtc, formatBttDate } from '../lib/dates.js';
 import { stringifyCsv } from '../lib/csv.js';
 import { Prisma } from '@prisma/client';
@@ -8,6 +13,7 @@ import { Prisma } from '@prisma/client';
 export const reportsRouter: Router = Router();
 
 reportsRouter.use(requireEmployee);
+reportsRouter.use(requireActiveSubscription);
 
 /**
  * GET /api/v1/reports/gst
@@ -17,6 +23,7 @@ reportsRouter.use(requireEmployee);
 reportsRouter.get(
   '/gst',
   requirePermission('reports.gst'),
+  requirePlanFeature('gst_reports'),
   async (req: Request, res: Response) => {
     const businessId = req.business!.id;
     const { from, to } = req.query as { from?: string; to?: string };
@@ -178,6 +185,7 @@ reportsRouter.get(
 reportsRouter.get(
   '/gst/export.csv',
   requirePermission('reports.gst'),
+  requirePlanFeature('gst_reports'),
   async (req: Request, res: Response) => {
     const businessId = req.business!.id;
     const { kind, from, to } = req.query as {

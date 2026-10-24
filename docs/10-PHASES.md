@@ -166,11 +166,11 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 10
 - **Tasks:**
-  - [ ] Subscription API: status, payment submission, change plan with limit checks, cancel (BR-04 to BR-07)
-  - [ ] Enforce plan limits and feature gates everywhere (`plans.ts`), including navigation
-  - [ ] SCR-23 (without the prototype's simulate/upgrade sections), expiry warning in the top bar
-  - [ ] Platform auth with TOTP enrolment, platform session, SCR-25 to SCR-27, verify/reject/extend/suspend/reactivate/reset password
-  - [ ] Audit log API with filters and SCR-22
+  - [x] Subscription API: status, payment submission, change plan with limit checks, cancel (BR-04 to BR-07)
+  - [x] Enforce plan limits and feature gates everywhere (`plans.ts`), including navigation
+  - [x] SCR-23 (without the prototype's simulate/upgrade sections), expiry warning in the top bar
+  - [x] Platform auth with TOTP enrolment, platform session, SCR-25 to SCR-27, verify/reject/extend/suspend/reactivate/reset password
+  - [x] Audit log API with filters and SCR-22
 - **Deliverables:** the SaaS can be sold and administered.
 - **Acceptance:** AC-04 to AC-07, AC-56, AC-57.
 

@@ -142,10 +142,10 @@ async function cleanDemoBusiness(businessId: string) {
   await prisma.customer.deleteMany({ where: { businessId } });
   await prisma.product.deleteMany({ where: { businessId } });
   await prisma.supplier.deleteMany({ where: { businessId } });
-  await prisma.employee.deleteMany({ where: { businessId } });
-  await prisma.taxRate.deleteMany({ where: { businessId } });
   await prisma.subscriptionPayment.deleteMany({ where: { businessId } });
   await prisma.subscriptionEvent.deleteMany({ where: { businessId } });
+  await prisma.employee.deleteMany({ where: { businessId } });
+  await prisma.taxRate.deleteMany({ where: { businessId } });
   await prisma.subscription.deleteMany({ where: { businessId } });
   await prisma.business.delete({ where: { id: businessId } });
 }

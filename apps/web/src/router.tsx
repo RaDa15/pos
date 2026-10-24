@@ -38,6 +38,10 @@ import { GstReportScreen } from './screens/GstReportScreen.js';
 import { SalesReportScreen } from './screens/SalesReportScreen.js';
 import { ExpensesScreen } from './screens/ExpensesScreen.js';
 
+// Phase 11 Screens: SCR-22 Audit Log & SCR-23 Subscription
+import { AuditLogScreen } from './screens/AuditLogScreen.js';
+import { SubscriptionScreen } from './screens/SubscriptionScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -226,12 +230,7 @@ export const router = createBrowserRouter([
         path: '/app/audit',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-22"
-              title="Audit Activity Log"
-              description="Immutable audit trail of all financial, catalogue, inventory, and security actions."
-              phaseNumber={9}
-            />
+            <AuditLogScreen />
           </ProtectedRoute>
         ),
       },
@@ -239,12 +238,7 @@ export const router = createBrowserRouter([
         path: '/app/subscription',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-23"
-              title="Subscription Management"
-              description="Plan details, expiration date, upgrade/downgrade, and offline bank transfer payment reference submission."
-              phaseNumber={9}
-            />
+            <SubscriptionScreen />
           </ProtectedRoute>
         ),
       },
