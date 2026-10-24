@@ -124,11 +124,14 @@ async function cleanDemoBusiness(businessId: string) {
   await prisma.auditLog.deleteMany({ where: { businessId } });
   await prisma.heldOrder.deleteMany({ where: { businessId } });
   await prisma.idempotencyKey.deleteMany({ where: { businessId } });
+  // Break mutual FK between Sale and KitchenOrder before deletion
+  await prisma.sale.updateMany({ where: { businessId }, data: { kitchenOrderId: null } });
+  await prisma.kitchenOrder.updateMany({ where: { businessId }, data: { saleId: null } });
   await prisma.kitchenOrderItem.deleteMany({ where: { businessId } });
-  await prisma.kitchenOrder.deleteMany({ where: { businessId } });
   await prisma.saleItem.deleteMany({ where: { businessId } });
   await prisma.payment.deleteMany({ where: { businessId } });
   await prisma.sale.deleteMany({ where: { businessId } });
+  await prisma.kitchenOrder.deleteMany({ where: { businessId } });
   await prisma.purchaseItem.deleteMany({ where: { businessId } });
   await prisma.purchase.deleteMany({ where: { businessId } });
   await prisma.stockMovement.deleteMany({ where: { businessId } });

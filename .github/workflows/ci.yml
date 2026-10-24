@@ -71,8 +71,14 @@ jobs:
       - name: Seed test database
         run: pnpm --filter @pos/api db:seed
 
-      - name: Run unit & integration tests
-        run: pnpm test
+      - name: Run shared package tests
+        run: pnpm --filter @pos/shared test
+
+      - name: Run web app tests
+        run: pnpm --filter @pos/web test
+
+      - name: Run API integration tests
+        run: pnpm --filter @pos/api test
 
       - name: Security audit (prod dependencies)
         run: pnpm audit --prod
