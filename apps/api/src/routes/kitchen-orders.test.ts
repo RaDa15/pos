@@ -53,7 +53,8 @@ describe('Phase 9: Kitchen Orders Integration Tests (AC-37, AC-38)', () => {
       where: { name: 'Test Restaurant' },
     });
     const dishes = await prisma.product.findMany({
-      where: { businessId: restaurant.id, active: true },
+      where: { businessId: restaurant.id, active: true, trackStock: false },
+      orderBy: { name: 'asc' },
       take: 2,
     });
     expect(dishes.length).toBeGreaterThanOrEqual(2);
@@ -129,8 +130,9 @@ describe('Phase 9: Kitchen Orders Integration Tests (AC-37, AC-38)', () => {
       where: { name: 'Test Restaurant' },
     });
     const dishes = await prisma.product.findMany({
-      where: { businessId: restaurant.id, active: true },
+      where: { businessId: restaurant.id, active: true, trackStock: false },
       include: { taxRate: true },
+      orderBy: { name: 'asc' },
       take: 2,
     });
     expect(dishes.length).toBeGreaterThanOrEqual(2);
@@ -227,6 +229,9 @@ describe('Phase 9: Kitchen Orders Integration Tests (AC-37, AC-38)', () => {
         ],
       });
 
+    if (saleRes.status !== 201) {
+      console.error('AC-38 sale checkout failed:', JSON.stringify(saleRes.body));
+    }
     expect(saleRes.status).toBe(201);
     const saleId = saleRes.body.data.id;
     expect(saleRes.body.data.invoiceNo).toMatch(/^INV-\d{4}-\d{5}$/);
