@@ -54,6 +54,27 @@ button:disabled {
   opacity: 1;
 }
 
+/* Sidebar Navigation Smooth Scrolling & Slim Scrollbar */
+.sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+.sidebar-nav::-webkit-scrollbar {
+  width: 5px;
+}
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
 /* Table Wrappers with horizontal scroll (v1 change from overflow: hidden) */
 .table-wrap {
   background: var(--panel);

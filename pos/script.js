@@ -999,29 +999,59 @@ function lowStockItems() {
   return (S.cur.products || []).filter(p => p.active !== false && productTracksStock(p) && Number(p.stock) <= Number(p.minStock || 0));
 }
 
+function toggleSidebar(open) {
+  const shellEl = document.getElementById('app-shell');
+  if (!shellEl) return;
+  if (typeof open === 'boolean') {
+    if (open) shellEl.classList.add('sidebar-open');
+    else shellEl.classList.remove('sidebar-open');
+  } else {
+    shellEl.classList.toggle('sidebar-open');
+  }
+}
+
 function shell(innerHTML) {
   const biz = S.cur.business;
   const sub = S.cur.subscription;
   const st = subStatusOf(sub);
   const nav = navConfig(biz.type);
   return `
-  <div id="app-shell" style="display:flex;min-height:100vh;">
-    <div class="sidebar">
-      <div class="brand"><div class="mark">POS SYSTEM</div><div class="sub">${escapeHtml(biz.name)}</div></div>
-      ${nav.map(n => `<div class="nav-item ${S.screen === n.s ? 'active' : ''}" onclick="go('${n.s}')">${t(n.label)}${n.s === 'inventory' && lowStockItems().length ? `<span class="nav-badge" title="Low-stock items">${lowStockItems().length}</span>` : ''}</div>`).join('')}
+  <div id="app-shell" class="app-shell">
+    <div class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+    <aside class="sidebar">
+      <div class="brand">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="mark">POS SYSTEM</div>
+          <button type="button" class="sidebar-close-btn" onclick="toggleSidebar(false)" aria-label="Close menu">✕</button>
+        </div>
+        <div class="sub">${escapeHtml(biz.name)}</div>
+      </div>
+      <nav class="sidebar-nav" aria-label="Main menu">
+        ${nav.map(n => `<div class="nav-item ${S.screen === n.s ? 'active' : ''}" onclick="go('${n.s}');toggleSidebar(false);">${t(n.label)}${n.s === 'inventory' && lowStockItems().length ? `<span class="nav-badge" title="Low-stock items">${lowStockItems().length}</span>` : ''}</div>`).join('')}
+      </nav>
       <div class="sidebar-foot">
         <div class="who">${escapeHtml(S.session.employee.name || S.session.employee.username)}</div>
         <div class="role">${escapeHtml(S.session.employee.role)}</div>
         <div class="logout" onclick="logout()">${t('Log out')}</div>
         ${langToggleHTML()}
       </div>
-    </div>
+    </aside>
     <div class="main">
-      <div class="topbar">
-        <div><h1>${screenTitle()}</h1><div class="meta">${biz.type} · ${biz.businessId}</div></div>
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="hamburger-btn" onclick="toggleSidebar(true)" aria-label="Open menu">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div>
+            <h1>${screenTitle()}</h1>
+            <div class="meta">${biz.type} · ${biz.businessId}</div>
+          </div>
+        </div>
         <div class="row"><span class="sub-badge ${st.toLowerCase()}">${st}</span></div>
-      </div>
-      <div class="content">${innerHTML}</div>
+      </header>
+      <main class="content">${innerHTML}</main>
     </div>
   </div>`;
 }
@@ -1265,9 +1295,14 @@ function screenProducts() {
   const p = S.cur.products;
   const isRestaurant = S.cur.business.type === 'Restaurant';
   return `
-  <div class="row between" style="margin-bottom:14px;">
-    <input placeholder="Search by name or barcode…" style="max-width:280px;" oninput="S.ui.q=this.value;renderProductsTable()">
-    <div class="row">
+  <div class="toolbar-header">
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+      </svg>
+      <input class="search-input" placeholder="Search by name or barcode…" value="${escapeHtml(S.ui.q || '')}" oninput="S.ui.q=this.value;renderProductsTable()">
+    </div>
+    <div class="toolbar-actions">
       <button class="btn outline" onclick="downloadTemplate()">Download Excel template</button>
       <label class="btn outline" style="margin:0;">Import from Excel<input type="file" accept=".csv" style="display:none;" onchange="handleImportFile(event)"></label>
       <button class="btn outline" onclick="exportCollectionCsv('products')">Export to Excel</button>
@@ -2089,8 +2124,13 @@ function downloadReceiptPdf(txnId) {
 function screenInvoices() {
   const list = [...S.cur.transactions].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return `
-  <div class="row" style="margin-bottom:14px;">
-    <input placeholder="Search invoice no., customer…" style="max-width:280px;" oninput="S.ui.q=this.value;renderInvoicesTable()">
+  <div class="toolbar-header">
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+      </svg>
+      <input class="search-input" placeholder="Search invoice no., customer…" value="${escapeHtml(S.ui.q || '')}" oninput="S.ui.q=this.value;renderInvoicesTable()">
+    </div>
   </div>
   <div class="table-wrap" id="invoices-table">${invoicesTableHTML(list)}</div>`;
 }

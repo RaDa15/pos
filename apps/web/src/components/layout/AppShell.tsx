@@ -269,7 +269,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   const renderSidebarContent = () => (
     <>
       {/* Brand & Business info */}
-      <div className="brand" style={{ padding: '0 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '10px' }}>
+      <div className="brand" style={{ flexShrink: 0, padding: '0 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="mark" style={{ fontWeight: 800, fontSize: '18px', letterSpacing: '-0.01em', color: '#FFFFFF' }}>
             {business?.name || 'POS SYSTEM'}
@@ -297,7 +297,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       </div>
 
       {/* Navigation items */}
-      <nav aria-label="Main Navigation" style={{ flex: 1, overflowY: 'auto' }}>
+      <nav aria-label="Main Navigation" className="sidebar-nav" style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         {navSections.map((sec, secIdx) => {
           const visibleItems = sec.items.filter(isItemVisible);
           if (visibleItems.length === 0) return null;
@@ -367,6 +367,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       <div
         className="sidebar-foot"
         style={{
+          flexShrink: 0,
           marginTop: 'auto',
           padding: '14px 20px 0',
           borderTop: '1px solid rgba(255,255,255,0.1)',
@@ -402,18 +403,25 @@ export const AppShell: React.FC<AppShellProps> = ({
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--paper)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', backgroundColor: 'var(--paper)' }}>
       {/* Desktop / Tablet Sidebar */}
       <aside
         className="sidebar"
         style={{
-          width: '224px',
+          width: '232px',
           flexShrink: 0,
           backgroundColor: 'var(--navy)',
           color: '#EDEEF3',
           display: 'flex',
           flexDirection: 'column',
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          maxHeight: '100vh',
+          overflow: 'hidden',
           padding: '20px 0',
+          boxSizing: 'border-box',
+          zIndex: 90,
         }}
       >
         {renderSidebarContent()}
@@ -554,7 +562,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         </header>
 
         {/* Page Content or Inactive Subscription Blocker (BR-05) */}
-        <main className="content" style={{ padding: '24px 28px 60px', flex: 1 }}>
+        <main className="content" style={{ padding: '24px 28px 60px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
           {isCurrentRouteBlockedBySubscription() ? (
             <Card style={{ maxWidth: '560px', margin: '40px auto', textAlign: 'center', padding: '32px 24px' }}>
               <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔒</div>

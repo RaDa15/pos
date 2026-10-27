@@ -350,7 +350,7 @@ export const ProductsScreen: React.FC = () => {
           }}
         >
           {/* Search bar */}
-          <div style={{ minWidth: '280px', maxWidth: '400px', flex: '1' }}>
+          <div style={{ minWidth: '240px', maxWidth: '520px', flex: '1 1 280px' }}>
             <Input
               type="text"
               placeholder="Search by name or barcode…"
