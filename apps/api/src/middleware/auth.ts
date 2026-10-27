@@ -255,4 +255,17 @@ export function requireRestaurant(req: Request, _res: Response, next: NextFuncti
   next();
 }
 
+/**
+ * Middleware: requires business type to be grocery (F-09).
+ */
+export function requireGrocery(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.business) {
+    throw AppError.unauthenticated();
+  }
+  if (req.business.type !== 'grocery') {
+    throw AppError.forbidden('Purchases are only available for grocery businesses.');
+  }
+  next();
+}
+
 export const requireAuth = requireEmployee;

@@ -6,11 +6,11 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 10 — Dashboard, reports & expenses |
-| Status | Phase 9 completed, Phase 10 ready |
-| Last updated | 2026-10-24 |
-| Next step | Phase 10: Dashboard per lens (SCR-07), GST report (SCR-16), Sales & profit report (SCR-17), Expenses API & SCR-20 |
-| Blockers | None for Phases 0–10. Open questions in `docs/README.md` must be answered before the phases marked there |
+| Current phase | Phase 12 — Purchases & data import/export |
+| Status | Phase 11 completed, Phase 12 in progress |
+| Last updated | 2026-10-27 |
+| Next step | Phase 12: Purchases API & SCR-13 (BR-38, AC-25), JSON export (AC-55), Prototype backup import (AC-54) |
+| Blockers | None |
 
 ## Phase progress
 
@@ -26,9 +26,9 @@ The project's living log. AI sessions forget everything between chats; this file
 | 7 POS & receipts | Done | AC-26..36, AC-39, AC-40, AC-48, AC-61 passed; checkout, INV sequence, held orders, jsPDF 80mm receipt |
 | 8 Invoices, void & payments | Done | AC-41, AC-42, AC-46 passed; invoices search/filters, role-gated void with restock/balance rollback/KOT unbill, payments report & CSV export |
 | 9 Kitchen orders | Done | AC-37, AC-38 passed; KOT-NNNN counter, restaurant gating (403 for non-restaurant), state machine (409 for invalid transitions), SCR-10 Kanban board with auto-polling, POS Send-to-Kitchen & Bill-KOT |
-| 10 Dashboard, reports & expenses | Not started | — |
-| 11 Subscription, plans & platform admin | Not started | — |
-| 12 Purchases & data import/export | Not started | — |
+| 10 Dashboard, reports & expenses | Done | AC-15, AC-16, AC-43, AC-44, AC-45, AC-47, AC-51 passed; lens-scoped dashboard, GST report with print & CSV, Sales & profit report with charts, Expenses CRUD with categories |
+| 11 Subscription, plans & platform admin | Done | AC-04..07, AC-56, AC-57 passed; subscription status, payment flow & TOTP platform admin, plan limits enforcement & expiry warnings, audit log API & screen |
+| 12 Purchases & data import/export | In progress | AC-25, AC-54, AC-55 |
 | 13 Testing & hardening | Not started | — |
 | 14 Deploy & pilot | Not started | — |
 
@@ -201,5 +201,28 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
     - Tablet-friendly horizontal scroll layout.
   - Tests: 2 integration tests in `apps/api/src/routes/kitchen-orders.test.ts` verifying full `AC-37` state machine, 403 grocery rejection, 409 transition guard, and `AC-38` cashier billing and double-billing rejection.
   - 122/122 tests passing across monorepo (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 79).
-  - Next: Phase 10 — Dashboard, reports & expenses.
+- 2026-10-24 — **Phase 10 (Dashboard, reports & expenses) completed**:
+  - Implemented lens-based dashboard API (`GET /dashboard`) returning server-aggregated KPIs, alerts, recent sales, and category breakdowns per role lens (`full`, `finance`, `sales`, `inventory`, `floor`).
+  - Implemented Expenses API (`GET/POST /expenses`, `PATCH/DELETE /expenses/:id`) with expense categories and payment methods, date filtering, and audit logs.
+  - Implemented GST Report API (`GET /reports/gst`, CSV export, and print view) with standard rate breakdowns, taxable sales, and zero-tax handling for non-GST registered businesses (BR-11, BR-30, BR-33).
+  - Implemented Sales & Profit Report API (`GET /reports/sales`, CSV export) computing estimated profit (sales before GST minus purchase price at time of sale minus expenses) per BR-32.
+  - Frontend screens: `DashboardScreen.tsx` (SCR-07 with charts), `GstReportScreen.tsx` (SCR-16 with CSS print area), `SalesReportScreen.tsx` (SCR-17), and `ExpensesScreen.tsx` (SCR-20).
+  - Tests: 7 integration tests in `reports-dashboard-expenses.test.ts` verifying AC-15, AC-16, AC-43, AC-44, AC-45, AC-47, AC-51.
+- 2026-10-24 — **Phase 11 (Subscription, plans & platform admin) completed**:
+  - Platform authentication (`POST /platform/auth/login`, TOTP enrollment/verification with `otplib` and base32 secret encryption, platform session).
+  - Platform management APIs (`/platform/businesses`, `/platform/subscription-payments`, extend, suspend, reactivate, reset password).
+  - Tenant subscription flow (`POST /subscription/payments`, `POST /subscription/cancel`, plan upgrade/downgrade limit verification per BR-04..07).
+  - Plan limit enforcement middleware and feature gates across all modules (`plans.ts`).
+  - Audit log API (`GET /audit-logs`) and screen (`AuditLogScreen.tsx` SCR-22).
+  - Frontend screens: `SubscriptionScreen.tsx` (SCR-23), `PlatformLoginScreen.tsx` (SCR-25), `PlatformBusinessesScreen.tsx` (SCR-26), `PlatformPaymentsScreen.tsx` (SCR-27).
+  - Tests: 6 integration tests in `platform-subscription-audit.test.ts` verifying AC-04..07, AC-56, AC-57. 138/138 tests passing across monorepo.
+- 2026-10-27 — **Phase 12 (Purchases & data import/export) completed**:
+  - Implemented Purchases API (`GET/POST /purchases`, `GET /purchases/:id`) strictly scoped to grocery businesses (`requireGrocery`), generating gapless sequence `PUR-YYYY-NNNNN` (BR-38), validating `amountPaid <= total`, recording `purchase` stock movements (`qty > 0`), updating product cost prices (`purchasePrice`), tracking supplier debt, and supporting request idempotency.
+  - Implemented Business Data Export API (`GET /data/export`, `F-21`, `AC-55`) generating complete JSON backup across 14 collections, strictly stripping all sensitive authentication credentials (password hashes, active sessions, and TOTP secrets).
+  - Implemented Prototype Data Import API (`POST /data/import-prototype`, `F-21`, `AC-54`, `06-BACKEND-SCHEMA.md` §8) with full transactional mapping for all 14 entities, automatic unique barcode generation for legacy items, single-import enforcement returning `409 IMPORT_NOT_ALLOWED` if prior data or import exists, forced temporary password generation for migrated staff (`mustChangePassword: true`), and audit logging.
+  - Created Web UI screen `SCR-13 Purchases` (`apps/web/src/screens/PurchasesScreen.tsx`) mounted at `/app/purchases` with KPI cards, supplier & date filters, detailed order modal, dynamic line items table, and amount paid validation.
+  - Enhanced `SCR-24 Settings` (`apps/web/src/screens/SettingsScreen.tsx`) with Section 4: Data Management (Export & Migration) featuring single-click JSON export and prototype backup import with modal confirmation and record counts feedback.
+  - Added Purchases and Data export/import routes to tenant isolation test harness (`apps/api/src/routes/tenant-isolation.test.ts`).
+  - Added 4 integration tests in `apps/api/src/routes/purchases-data.test.ts` verifying `AC-25`, `AC-54`, `AC-55`, role & grocery access control, and 409 double-import guard.
+  - All 143 tests passing cleanly across monorepo (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 100); 0 lint errors, 0 type errors.
 
