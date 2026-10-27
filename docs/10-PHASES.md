@@ -178,9 +178,9 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 11
 - **Tasks:**
-  - [ ] Purchases API with `PUR-YYYY-NNNNN` and stock movements (BR-38); SCR-13
-  - [ ] `GET /data/export` JSON (no password hashes)
-  - [ ] `POST /data/import-prototype` per the mapping in `06-BACKEND-SCHEMA.md` §8, tested with a real prototype backup exported from each demo company
+  - [x] Purchases API with `PUR-YYYY-NNNNN` and stock movements (BR-38); SCR-13
+  - [x] `GET /data/export` JSON (no password hashes)
+  - [x] `POST /data/import-prototype` per the mapping in `06-BACKEND-SCHEMA.md` §8, tested with a real prototype backup exported from each demo company
 - **Deliverables:** pilot businesses can move from the prototype.
 - **Acceptance:** AC-25, AC-54, AC-55.
 

@@ -34,7 +34,7 @@ const csvUpload = multer({
 /**
  * Generates an 11-digit barcode starting with '20' unique within business (BR-08, AC-17).
  */
-async function generateUniqueBarcode(businessId: string): Promise<string> {
+export async function generateUniqueBarcode(businessId: string): Promise<string> {
   for (let attempt = 0; attempt < 20; attempt++) {
     let digits = '';
     for (let i = 0; i < 9; i++) {

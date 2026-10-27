@@ -42,6 +42,9 @@ import { ExpensesScreen } from './screens/ExpensesScreen.js';
 import { AuditLogScreen } from './screens/AuditLogScreen.js';
 import { SubscriptionScreen } from './screens/SubscriptionScreen.js';
 
+// Phase 12 Screen: SCR-13 Purchases
+import { PurchasesScreen } from './screens/PurchasesScreen.js';
+
 // Screen Placeholders for SCR-08 to SCR-24
 import { ScreenPlaceholder } from './screens/ScreenPlaceholder.js';
 
@@ -140,12 +143,7 @@ export const router = createBrowserRouter([
         path: '/app/purchases',
         element: (
           <ProtectedRoute>
-            <ScreenPlaceholder
-              screenId="SCR-13"
-              title="Supplier Purchases"
-              description="Record incoming goods from suppliers, cost price tracking, and batch assignments."
-              phaseNumber={6}
-            />
+            <PurchasesScreen />
           </ProtectedRoute>
         ),
       },

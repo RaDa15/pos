@@ -8,3 +8,5 @@ export * from './settings.js';
 export * from './inventory.js';
 export * from './customers.js';
 export * from './suppliers.js';
+export * from './purchases.js';
+export * from './data.js';

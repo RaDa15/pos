@@ -52,6 +52,10 @@ export class AppError extends Error {
     return new AppError(400, 'VALIDATION_ERROR', message, details);
   }
 
+  static validation(message = 'Validation failed', details?: Record<string, unknown>): AppError {
+    return new AppError(400, 'VALIDATION_ERROR', message, details);
+  }
+
   static badRequest(message = 'Invalid request', details?: Record<string, unknown>): AppError {
     return new AppError(400, 'VALIDATION_ERROR', message, details);
   }
@@ -178,6 +182,10 @@ export class AppError extends Error {
 
   static alreadyVoided(message = 'Sale is already voided'): AppError {
     return new AppError(409, 'ALREADY_VOIDED', message);
+  }
+
+  static importNotAllowed(message = 'Import is not allowed'): AppError {
+    return new AppError(409, 'IMPORT_NOT_ALLOWED', message);
   }
 
   static internal(message = 'An unexpected internal error occurred'): AppError {

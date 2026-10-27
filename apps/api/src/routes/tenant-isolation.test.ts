@@ -114,4 +114,76 @@ describe('Phase 3: Tenant Isolation Test Harness (AC-58, AC-59, AC-60)', () => {
     });
     expect(injected).toBeNull();
   });
+
+  it('Tenant Isolation for Purchases: Pema Store cannot list, view, or inject into Norbu purchases', async () => {
+    const pemaBiz = await prisma.business.findFirst({ where: { name: 'Pema Store' } });
+    const norbuBiz = await prisma.business.findFirst({ where: { name: 'Norbu General Store' } });
+    const norbuAdmin = await prisma.employee.findFirst({
+      where: { businessId: norbuBiz!.id, role: 'admin' },
+    });
+    const norbuSupplier = await prisma.supplier.findFirst({
+      where: { businessId: norbuBiz!.id },
+    });
+    const norbuProduct = await prisma.product.findFirst({
+      where: { businessId: norbuBiz!.id },
+    });
+
+    // Create a purchase for Norbu General Store
+    const norbuPurchase = await prisma.purchase.create({
+      data: {
+        businessId: norbuBiz!.id,
+        purchaseNo: 'PUR-2026-99999',
+        supplierId: norbuSupplier!.id,
+        purchaseDate: new Date('2026-10-20'),
+        total: 1000,
+        amountPaid: 1000,
+        createdBy: norbuAdmin!.id,
+        items: {
+          create: {
+            businessId: norbuBiz!.id,
+            productId: norbuProduct!.id,
+            qty: 10,
+            unitCost: 100,
+            lineTotal: 1000,
+          },
+        },
+      },
+    });
+
+    const agentA = request.agent(app);
+    const csrfResA = await agentA.get('/api/v1/auth/csrf');
+    const csrfTokenA = csrfResA.body.data.token;
+    await loginAsCompanyAdmin(agentA, csrfTokenA, 'Pema Store');
+
+    // 1. GET /purchases as Pema Store does NOT contain Norbu purchase
+    const listRes = await agentA.get('/api/v1/purchases');
+    expect(listRes.status).toBe(200);
+    const purchaseIds = listRes.body.data.map((p: { id: string }) => p.id);
+    expect(purchaseIds).not.toContain(norbuPurchase.id);
+
+    // 2. GET /purchases/:id for Norbu purchase as Pema Store returns 404 NOT_FOUND
+    const detailRes = await agentA.get(`/api/v1/purchases/${norbuPurchase.id}`);
+    expect(detailRes.status).toBe(404);
+    expect(detailRes.body.error.code).toBe('NOT_FOUND');
+
+    // 3. Injecting businessId into POST /purchases is rejected with 400 VALIDATION_ERROR
+    const pemaSupplier = await prisma.supplier.findFirst({ where: { businessId: pemaBiz!.id } });
+    const pemaProduct = await prisma.product.findFirst({ where: { businessId: pemaBiz!.id } });
+    const injectRes = await agentA
+      .post('/api/v1/purchases')
+      .set('X-CSRF-Token', csrfTokenA)
+      .send({
+        businessId: norbuBiz!.id,
+        supplierId: pemaSupplier!.id,
+        purchaseDate: '2026-10-21',
+        amountPaid: 0,
+        items: [{ productId: pemaProduct!.id, qty: 1, unitCost: 10 }],
+      });
+    expect(injectRes.status).toBe(400);
+    expect(injectRes.body.error.code).toBe('VALIDATION_ERROR');
+
+    // Clean up test purchase
+    await prisma.purchaseItem.deleteMany({ where: { purchaseId: norbuPurchase.id } });
+    await prisma.purchase.delete({ where: { id: norbuPurchase.id } });
+  });
 });

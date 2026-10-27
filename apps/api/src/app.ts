@@ -30,6 +30,8 @@ import { reportsRouter } from './routes/reports.js';
 import { platformRouter } from './routes/platform.js';
 import { subscriptionRouter } from './routes/subscription.js';
 import { auditRouter } from './routes/audit.js';
+import { purchasesRouter } from './routes/purchases.js';
+import { dataRouter } from './routes/data.js';
 
 export function createApp(): Express {
   const app = express();
@@ -42,7 +44,7 @@ export function createApp(): Express {
     })
   );
   app.use(cookieParser(env.SESSION_SECRET));
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
 
   if (env.NODE_ENV !== 'test') {
     app.use(pinoHttp({ logger }));
@@ -90,6 +92,8 @@ export function createApp(): Express {
   app.use('/api/v1/platform', platformRouter);
   app.use('/api/v1/subscription', subscriptionRouter);
   app.use('/api/v1/audit-logs', auditRouter);
+  app.use('/api/v1/purchases', purchasesRouter);
+  app.use('/api/v1/data', dataRouter);
 
   // Centralized Error Handler (07-API-SPEC.md §2)
   app.use(errorHandler);

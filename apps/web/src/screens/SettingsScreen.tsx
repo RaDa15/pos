@@ -8,6 +8,7 @@ import { Modal } from '../components/ui/Modal.js';
 import { Pill } from '../components/ui/Pill.js';
 import { useToast } from '../components/ui/Toast.js';
 import { apiClient } from '../api/client.js';
+import { useAuth } from '../context/AuthContext.js';
 import {
   TAX_MODES,
   TAX_CATEGORIES,
@@ -81,6 +82,22 @@ export const SettingsScreen: React.FC = () => {
   // Logo upload state
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  // Auth & Permissions
+  const { employee, permissions } = useAuth();
+  const canExportImport = permissions.includes('data.export_import') || employee?.role === 'admin';
+
+  // Data management state (SCR-24, F-21, AC-54, AC-55)
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [isConfirmImportModalOpen, setIsConfirmImportModalOpen] = useState(false);
+  const [importResult, setImportResult] = useState<{
+    counts: Record<string, number>;
+    importedUsers: Array<{ username: string; fullName: string; role: string }>;
+  } | null>(null);
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const importFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Fetch settings data
   const loadSettings = async () => {
@@ -286,6 +303,90 @@ export const SettingsScreen: React.FC = () => {
     setDiscounts((prev) =>
       prev.map((d) => (d.customerType === type ? { ...d, discountPct: num } : d))
     );
+  };
+
+  // Handle JSON Export (AC-55)
+  const handleExportData = async () => {
+    try {
+      setExporting(true);
+      const res = await fetch('/api/v1/data/export', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`Export failed with HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const today = new Date().toISOString().slice(0, 10);
+      a.download = `pos-backup-${profile?.businessCode || 'data'}-${today}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast('JSON backup downloaded successfully. Sensitive credentials excluded (AC-55).', 'success');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to export business data.';
+      toast(msg, 'error');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Handle File Select for Prototype Import
+  const handleSelectImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith('.json')) {
+      toast('Please select a valid JSON backup file.', 'error');
+      return;
+    }
+    setImportFile(file);
+    setIsConfirmImportModalOpen(true);
+    e.target.value = '';
+  };
+
+  // Handle Confirm Import (AC-54)
+  const handleExecuteImport = async () => {
+    if (!importFile) return;
+
+    try {
+      setImporting(true);
+      const fileText = await importFile.text();
+      let parsedJson: unknown;
+      try {
+        parsedJson = JSON.parse(fileText);
+      } catch {
+        throw new Error('File contents is not valid JSON.');
+      }
+
+      const res = await apiClient.post<{
+        data: {
+          counts: Record<string, number>;
+          importedUsers: Array<{ username: string; fullName: string; role: string }>;
+        };
+      }>('/api/v1/data/import-prototype', parsedJson);
+
+      setIsConfirmImportModalOpen(false);
+      setImportFile(null);
+      setImportResult(res.data);
+      setIsResultModalOpen(true);
+      toast('Prototype backup imported successfully (AC-54)!', 'success');
+      await loadSettings();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to import prototype backup.';
+      toast(msg, 'error');
+    } finally {
+      setImporting(false);
+    }
   };
 
   return (
@@ -728,6 +829,293 @@ export const SettingsScreen: React.FC = () => {
                 </div>
               </form>
             </Card>
+
+            {/* Section 4: Data Management (SCR-24, F-21, AC-54, AC-55) */}
+            {canExportImport && (
+              <Card>
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 4px 0', color: 'var(--ink)' }}>
+                    Data Management (Export & Migration)
+                  </h2>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>
+                    Download full operational backups or import legacy records from the prototype system.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                    gap: '20px',
+                  }}
+                >
+                  {/* Export Card */}
+                  <div
+                    style={{
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      background: 'var(--surface-sunken)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '12px',
+                    }}
+                  >
+                    <div>
+                      <h3 style={{ fontSize: '14.5px', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--ink)' }}>
+                        JSON Data Export (AC-55)
+                      </h3>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '12.5px', color: 'var(--muted)', lineHeight: 1.5 }}>
+                        Download a comprehensive JSON backup of all business tables: products, inventory movements,
+                        customers, suppliers, purchases, sales, payments, expenses, and audit trail.
+                      </p>
+                      <div
+                        style={{
+                          fontSize: '11.5px',
+                          padding: '6px 10px',
+                          background: 'var(--panel)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '4px',
+                          color: 'var(--ink)',
+                        }}
+                      >
+                        🔒 Security guarantee: Password hashes, active sessions, and TOTP secrets are strictly excluded.
+                      </div>
+                    </div>
+
+                    <div>
+                      <Button
+                        type="button"
+                        variant="primary"
+                        disabled={exporting}
+                        onClick={handleExportData}
+                        style={{ width: '100%' }}
+                      >
+                        {exporting ? 'Generating JSON Backup…' : 'Download JSON Export'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Import Card */}
+                  <div
+                    style={{
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      background: 'var(--surface-sunken)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '12px',
+                    }}
+                  >
+                    <div>
+                      <h3 style={{ fontSize: '14.5px', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--ink)' }}>
+                        Prototype Backup Import (AC-54)
+                      </h3>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '12.5px', color: 'var(--muted)', lineHeight: 1.5 }}>
+                        Migrate legacy data from your prototype JSON backup into this business. Imports products, customers,
+                        suppliers, expenses, sales history, and employee accounts.
+                      </p>
+                      <div
+                        style={{
+                          fontSize: '11.5px',
+                          padding: '6px 10px',
+                          background: 'var(--panel)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '4px',
+                          color: 'var(--ink)',
+                        }}
+                      >
+                        ⚠️ Note: Import is permitted only once into a fresh business before new transactions are registered.
+                      </div>
+                    </div>
+
+                    <div>
+                      <input
+                        ref={importFileInputRef}
+                        type="file"
+                        accept=".json"
+                        style={{ display: 'none' }}
+                        onChange={handleSelectImportFile}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={importing}
+                        onClick={() => importFileInputRef.current?.click()}
+                        style={{ width: '100%' }}
+                      >
+                        {importing ? 'Processing Import…' : 'Select Backup File (.json)'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Modal: Confirm Prototype Import */}
+            {isConfirmImportModalOpen && (
+              <Modal
+                isOpen={isConfirmImportModalOpen}
+                onClose={() => {
+                  if (!importing) {
+                    setIsConfirmImportModalOpen(false);
+                    setImportFile(null);
+                  }
+                }}
+                title="Confirm Prototype Backup Import (AC-54)"
+                size="normal"
+                hideFooter
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div
+                    style={{
+                      padding: '12px',
+                      background: 'var(--amber-tint, #fffbeb)',
+                      border: '1px solid var(--amber, #f59e0b)',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      color: 'var(--ink)',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <strong>⚠️ Important Migration Warning:</strong>
+                    <ul style={{ margin: '8px 0 0 0', paddingLeft: '18px' }}>
+                      <li>This operation will insert all records from the selected prototype JSON backup file into your business database.</li>
+                      <li>It can only be executed once on a fresh business account. Subsequent imports will be rejected.</li>
+                      <li>Legacy employee passwords will <strong>not</strong> be imported; they will be assigned temporary passwords and prompted to change them on first login.</li>
+                    </ul>
+                  </div>
+
+                  <div style={{ fontSize: '13px' }}>
+                    <span style={{ color: 'var(--muted)' }}>Selected file: </span>
+                    <strong>{importFile?.name}</strong>{' '}
+                    <span style={{ color: 'var(--muted)' }}>
+                      ({Math.round((importFile?.size || 0) / 1024)} KB)
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={importing}
+                      onClick={() => {
+                        setIsConfirmImportModalOpen(false);
+                        setImportFile(null);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      disabled={importing}
+                      onClick={handleExecuteImport}
+                    >
+                      {importing ? 'Importing Data…' : 'Confirm & Import Backup'}
+                    </Button>
+                  </div>
+                </div>
+              </Modal>
+            )}
+
+            {/* Modal: Prototype Import Results */}
+            {isResultModalOpen && importResult && (
+              <Modal
+                isOpen={isResultModalOpen}
+                onClose={() => setIsResultModalOpen(false)}
+                title="Prototype Import Successful (AC-54)"
+                size="wide"
+                hideFooter
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div
+                    style={{
+                      padding: '12px',
+                      background: 'var(--green-tint)',
+                      color: 'var(--green)',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      fontSize: '13.5px',
+                    }}
+                  >
+                    ✓ Prototype backup successfully imported into this business!
+                  </div>
+
+                  <div>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 8px 0' }}>Imported Entity Counts</h3>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                        gap: '10px',
+                      }}
+                    >
+                      {Object.entries(importResult.counts).map(([entity, count]) => (
+                        <div
+                          key={entity}
+                          style={{
+                            padding: '10px',
+                            background: 'var(--surface-sunken)',
+                            borderRadius: '6px',
+                            border: '1px solid var(--border)',
+                          }}
+                        >
+                          <span style={{ fontSize: '12px', color: 'var(--muted)', display: 'block', textTransform: 'capitalize' }}>
+                            {entity}
+                          </span>
+                          <strong style={{ fontSize: '16px' }}>{count}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {importResult.importedUsers.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '8px 0 8px 0' }}>
+                        Imported Employee Accounts ({importResult.importedUsers.length})
+                      </h3>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: 'var(--muted)' }}>
+                        All imported employees have been flagged to change their password on first login.
+                      </p>
+                      <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '6px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px' }}>
+                          <thead>
+                            <tr style={{ background: 'var(--surface-sunken)', borderBottom: '1px solid var(--border)' }}>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Username</th>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Name</th>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Role</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {importResult.importedUsers.map((u, i) => (
+                              <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                                <td style={{ padding: '6px 10px', fontWeight: 600, fontFamily: 'monospace' }}>
+                                  {u.username}
+                                </td>
+                                <td style={{ padding: '6px 10px' }}>{u.fullName}</td>
+                                <td style={{ padding: '6px 10px' }}>
+                                  <Pill variant="neutral">{u.role}</Pill>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                    <Button variant="primary" onClick={() => setIsResultModalOpen(false)}>
+                      Done
+                    </Button>
+                  </div>
+                </div>
+              </Modal>
+            )}
 
             {/* Modal: Add / Edit Tax Rate */}
             <Modal
