@@ -1,0 +1,121 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: pos_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password required}
+      POSTGRES_DB: ${POSTGRES_DB:-pos_prod}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-pos} -d $${POSTGRES_DB:-pos_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - pos_internal
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: pos_api_prod
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma &&
+             node apps/api/dist/server.js"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-pos}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pos_prod}?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET required}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-12}
+      REMEMBER_DEVICE_DAYS: ${REMEMBER_DEVICE_DAYS:-30}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://${APP_DOMAIN:-app.pos.bt}}
+      UPLOAD_DIR: ./uploads
+      PUBLIC_UPLOAD_BASE_URL: /uploads
+      TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY required}
+      PLATFORM_ADMIN_EMAIL: ${PLATFORM_ADMIN_EMAIL:-admin@pos.bt}
+      PLATFORM_ADMIN_INITIAL_PASSWORD: ${PLATFORM_ADMIN_INITIAL_PASSWORD:-}
+      SEED_DEMO_BUSINESSES: "false"
+    volumes:
+      - uploads_data:/app/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/health | grep -q '\"status\":\"ok\"' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - pos_internal
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: pos_web_prod
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - pos_internal
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: pos_caddy_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-app.pos.bt}
+      TLS_EMAIL: ${TLS_EMAIL:-admin@yuevaan.bt}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    networks:
+      - pos_internal
+
+  backup:
+    image: postgres:17-alpine
+    container_name: pos_backup_cron
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-pos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-pos_prod}
+      BACKUP_DIR: /backups
+      BACKUP_RETENTION_DAYS: 30
+    volumes:
+      - backup_data:/backups
+      - ./scripts:/scripts:ro
+    entrypoint: >
+      sh -c 'echo "0 2 * * * /bin/sh /scripts/backup.sh >> /backups/cron.log 2>&1" > /etc/crontabs/root &&
+             crond -f -l 2'
+    networks:
+      - pos_internal
+
+networks:
+  pos_internal:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  uploads_data:
+  caddy_data:
+  caddy_config:
+  backup_data:

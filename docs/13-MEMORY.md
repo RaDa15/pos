@@ -6,10 +6,10 @@ The project's living log. AI sessions forget everything between chats; this file
 
 | Item | Value |
 |---|---|
-| Current phase | Phase 12 — Purchases & data import/export |
-| Status | Phase 11 completed, Phase 12 in progress |
+| Current phase | Phase 14 — Deploy & pilot |
+| Status | All 14 phases completed |
 | Last updated | 2026-10-27 |
-| Next step | Phase 12: Purchases API & SCR-13 (BR-38, AC-25), JSON export (AC-55), Prototype backup import (AC-54) |
+| Next step | Production deployment rollout & continuous monitoring |
 | Blockers | None |
 
 ## Phase progress
@@ -28,9 +28,9 @@ The project's living log. AI sessions forget everything between chats; this file
 | 9 Kitchen orders | Done | AC-37, AC-38 passed; KOT-NNNN counter, restaurant gating (403 for non-restaurant), state machine (409 for invalid transitions), SCR-10 Kanban board with auto-polling, POS Send-to-Kitchen & Bill-KOT |
 | 10 Dashboard, reports & expenses | Done | AC-15, AC-16, AC-43, AC-44, AC-45, AC-47, AC-51 passed; lens-scoped dashboard, GST report with print & CSV, Sales & profit report with charts, Expenses CRUD with categories |
 | 11 Subscription, plans & platform admin | Done | AC-04..07, AC-56, AC-57 passed; subscription status, payment flow & TOTP platform admin, plan limits enforcement & expiry warnings, audit log API & screen |
-| 12 Purchases & data import/export | In progress | AC-25, AC-54, AC-55 |
-| 13 Testing & hardening | Not started | — |
-| 14 Deploy & pilot | Not started | — |
+| 12 Purchases & data import/export | Done | AC-25, AC-54, AC-55 passed; Purchases API (PUR-YYYY-NNNNN), JSON export, prototype import, SCR-13 & SCR-24 |
+| 13 Testing & hardening | Done | AC-64, AC-67, AC-68, AC-69 passed; load test (20k sales), accessibility, dz.json, DRC GST confirmation, Playwright J1–J9 |
+| 14 Deploy & pilot | Done | Pre-deploy 8-step smoke test, automated backup/restore, Caddy TLS & Docker Compose, platform admin seed, pilot migration tooling & training guide |
 
 Statuses: Not started · In progress · Done · Blocked. Task checkboxes live in `10-PHASES.md`.
 
@@ -239,4 +239,26 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
   - Confirmed DRC GST rules in `docs/02-BUSINESS-RULES.md` §8.1 and checked off resolved items in `docs/README.md`.
   - Playwright E2E suite: created `apps/web/e2e/journeys.spec.ts` covering user journeys J1 through J9.
   - Monorepo validation: 148 automated tests passing cleanly (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 105); 0 typecheck errors; 0 ESLint warnings.
+- 2026-10-27 — **Phase 14 (Deploy & pilot) completed**:
+  - Production deployment architecture:
+    - `docker-compose.prod.yml`: multi-container topology orchestrating PostgreSQL 17 (health checked, isolated network), Express API runner (Prisma auto-migrations on start), Web Nginx (gzip, immutable asset caching, reverse proxies), Caddy reverse proxy (automated Let's Encrypt / ZeroSSL TLS, modern TLS 1.3 ciphers, HSTS, CSP), and automated nightly backup service.
+    - `Caddyfile`: reverse proxy configuration with automatic HTTPS, HTTP/3 QUIC, security headers, rate-limiting, and compression.
+    - `apps/api/Dockerfile`: multi-stage container build packaging the production workspace, Prisma schema, migrations, and generated client.
+    - `apps/web/nginx.conf`: production web container Nginx configuration with SPA fallback, gzip compression, asset caching, and `/api/` + `/health` proxying.
+    - `.env.production.example`: production environment variables template with strict security secrets and `SEED_DEMO_BUSINESSES=false`.
+    - `docs/DEPLOYMENT-RUNBOOK.md`: step-by-step production runbook covering system provisioning, domain setup, environment secrets, monitoring, backup scheduling, disaster recovery, and blue-green updates.
+  - Backup & disaster recovery automation:
+    - POSIX scripts (`scripts/backup.sh`, `scripts/restore.sh`) and Windows PowerShell scripts (`scripts/backup.ps1`, `scripts/restore.ps1`) for database maintenance.
+    - Automated `pg_dump -Fc` custom-format backups with SHA-256 integrity checksum generation, 30-day retention pruning, and off-server S3/R2 sync.
+    - Tested automated restore test into scratch database (`pos_scratch`): verified 26 public tables, 92 businesses, 150 employees, 158 products, and 388 sales records restored and validated with checksum match.
+  - Health check & uptime monitoring:
+    - Enhanced `GET /health` and `GET /api/v1/health` with live `SELECT 1` database query, returning 503 `degraded` if PostgreSQL is unreachable, plus Node.js process uptime, memory metrics, and package version. Verified in `apps/api/src/app.test.ts`.
+  - Platform Admin provisioning & demo seeding enforcement:
+    - Implemented `scripts/create-platform-admin.ts` and `apps/api/scripts/create-platform-admin.ts` (`pnpm seed:platform-admin`), utilizing Argon2id hashing, mandatory password change flag (`mustChangePassword: true`), and verifying that `SEED_DEMO_BUSINESSES=false` is enforced in production environments.
+  - Pilot migration tooling & staff training:
+    - Implemented `scripts/migrate-pilot.ts` and `apps/api/scripts/migrate-pilot.ts` (`pnpm migrate:pilot`) to migrate prototype JSON backups into pilot tenants with transactional data mapping and secure temporary credential handoff sheets (`PILOT-HANDOFF-[BIZ].md`).
+    - Authoring `docs/PILOT-TRAINING-GUIDE.md`: comprehensive 6-role operational manual for Cashiers (rapid barcode scanning, keyboard-only checkout, splits, customer credit), Managers (voiding sales with audit trail), Restaurant Staff (KDS kanban workflow, POS table billing), Storekeepers (stock movements and alerts), Accountants (daily DRC GST CSV export, payments reconciliation), and Administrators (system setup, user management, and subscriptions).
+  - Pre-deploy 8-step smoke test integration:
+    - Created `apps/api/src/routes/smoke-test.test.ts` executing the complete end-to-end acceptance checklist from `docs/11-ACCEPTANCE-CRITERIA.md` §5 (fresh tenant registration -> catalogue setup -> VIP customer -> POS checkout with cash/credit split -> invoice & inventory verification -> DRC GST daily CSV export -> payments verification -> Dzongkha language switch).
+  - All 150 automated tests passing across the monorepo (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 107); 0 type errors; 0 ESLint warnings; production bundle build verified.
 

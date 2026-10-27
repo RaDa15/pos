@@ -9,6 +9,7 @@ import { createSessionMiddleware } from './middleware/session.js';
 import { csrfProtection } from './middleware/csrf.js';
 import { globalApiRateLimit } from './middleware/rateLimit.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { prisma } from './db/client.js';
 import path from 'node:path';
 import { registerRouter } from './routes/register.js';
 import { authRouter, meRouter } from './routes/auth.js';
@@ -79,14 +80,31 @@ export function createApp(): Express {
   // CSRF double-submit protection
   app.use(csrfProtection);
 
-  // Health endpoint
-  app.get('/api/v1/health', (_req: Request, res: Response) => {
-    res.status(200).json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
-    });
-  });
+  // Health & Uptime monitoring endpoints (root /health & /api/v1/health)
+  const healthHandler = async (_req: Request, res: Response) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.status(200).json({
+        status: 'ok',
+        database: 'connected',
+        uptime: Math.round(process.uptime()),
+        memoryMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        timestamp: new Date().toISOString(),
+        version: '1.0.0',
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      res.status(503).json({
+        status: 'degraded',
+        database: 'disconnected',
+        error: msg,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  };
+
+  app.get('/health', healthHandler);
+  app.get('/api/v1/health', healthHandler);
 
   // Serve uploads
   app.use(env.PUBLIC_UPLOAD_BASE_URL, express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));

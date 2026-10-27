@@ -11,6 +11,9 @@
     "dev:web": "pnpm --filter @pos/web dev",
     "build": "pnpm --filter @pos/shared build && pnpm --filter @pos/api build && pnpm --filter @pos/web build",
     "test": "pnpm --recursive test",
+    "smoke-test": "pnpm --filter @pos/api test src/routes/smoke-test.test.ts",
+    "seed:platform-admin": "pnpm --filter @pos/api seed:platform-admin",
+    "migrate:pilot": "pnpm --filter @pos/api migrate:pilot",
     "lint": "eslint .",
     "typecheck": "pnpm --recursive typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\""

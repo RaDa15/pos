@@ -201,19 +201,19 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 13
 - **Tasks:**
-  - [ ] Production server, domain, TLS, Docker Compose, env secrets
-  - [ ] Nightly backup + off-server copy; restore test into a scratch database
-  - [ ] Uptime monitoring and error alerting
-  - [ ] Create the first Platform Admin; confirm demo seeding is off
-  - [ ] Migrate pilot businesses with the prototype import; train staff
+  - [x] Production server, domain, TLS, Docker Compose, env secrets
+  - [x] Nightly backup + off-server copy; restore test into a scratch database
+  - [x] Uptime monitoring and error alerting
+  - [x] Create the first Platform Admin; confirm demo seeding is off
+  - [x] Migrate pilot businesses with the prototype import; train staff
 - **Deliverables:** live product with pilot customers.
 - **Acceptance:** smoke test (`11-ACCEPTANCE-CRITERIA.md` §5) on production with a pilot business.
 
 ## Definition of done (every phase)
 
-- [ ] All tasks ticked and the phase's acceptance criteria pass
-- [ ] No type or lint errors; `pnpm build` succeeds; CI green
-- [ ] No console errors on the phase's screens
-- [ ] New routes added to the tenant-isolation test (AC-58)
-- [ ] Docs updated if anything changed; `13-MEMORY.md` updated
-- [ ] Committed with a clear message (`12-RULES.md` §9)
+- [x] All tasks ticked and the phase's acceptance criteria pass
+- [x] No type or lint errors; `pnpm build` succeeds; CI green
+- [x] No console errors on the phase's screens
+- [x] New routes added to the tenant-isolation test (AC-58)
+- [x] Docs updated if anything changed; `13-MEMORY.md` updated
+- [x] Committed with a clear message (`12-RULES.md` §9)

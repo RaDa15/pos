@@ -43,3 +43,9 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Database backups & pilot handoff credentials
+backups/
+*.dump
+*.sha256
+PILOT-HANDOFF-*.md

@@ -9,8 +9,17 @@ describe('GET /api/v1/health', () => {
     const res = await request(app).get('/api/v1/health');
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('status', 'ok');
+    expect(res.body).toHaveProperty('database', 'connected');
     expect(res.body).toHaveProperty('version', '1.0.0');
     expect(res.body).toHaveProperty('timestamp');
+  });
+
+  it('root /health returns database connected and uptime', async () => {
+    const res = await request(app).get('/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('status', 'ok');
+    expect(res.body).toHaveProperty('database', 'connected');
+    expect(res.body).toHaveProperty('uptime');
   });
 
   it('enforces AC-64 security headers (CSP, X-Frame-Options DENY, nosniff)', async () => {
