@@ -225,4 +225,18 @@ Prototype problems found in the 2026-10-23 code review, and where v1 addresses e
   - Added Purchases and Data export/import routes to tenant isolation test harness (`apps/api/src/routes/tenant-isolation.test.ts`).
   - Added 4 integration tests in `apps/api/src/routes/purchases-data.test.ts` verifying `AC-25`, `AC-54`, `AC-55`, role & grocery access control, and 409 double-import guard.
   - All 143 tests passing cleanly across monorepo (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 100); 0 lint errors, 0 type errors.
+- 2026-10-27 — **Phase 13 (Testing & hardening) completed**:
+  - Security audit: `pnpm audit --prod` executed with 0 vulnerabilities; confirmed security headers (`AC-64`) including explicit CSP (`default-src 'self'`, `frame-ancestors 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and production HSTS.
+  - AC-67 Load Testing: created automated benchmark suite `apps/api/src/routes/load-test.test.ts` on dedicated enterprise tenant with 5,000 products and 20,000 sales across a 1-month range:
+    - Product search: 61 ms (< 300 ms target).
+    - `POST /sales` with 30 lines: 259–372 ms (< 500 ms target).
+    - One-month GST report: 1.11 s (< 2 s target, optimized from 3.1 s using selective query and fast SQL aggregation for by-rate breakdown).
+    - One-month Sales & Profit report: 1.53 s (< 2 s target, optimized from 3.8 s using selective query and fast SQL aggregations for COGS and categories).
+  - Accessibility pass (`AC-68`, `AC-69`):
+    - Enabled keyboard-only POS checkout: pressing Enter on empty scan input triggers checkout, prefilling balanced cash line; pressing Enter completes sale; Escape dismisses modal. Added `F4`/`Alt+P` payment shortcut and `F2` scanner focus.
+    - Added Escape key listeners and focus trapping across `Modal.tsx`, `PaymentModal.tsx`, and `ReceiptModal.tsx`.
+  - Dzongkha review: updated `apps/web/src/i18n/dz.json` with complete Dzongkha translations for all remaining placeholders and keys (audit logs, subscriptions, notices, error banners), preserving dual-script convention.
+  - Confirmed DRC GST rules in `docs/02-BUSINESS-RULES.md` §8.1 and checked off resolved items in `docs/README.md`.
+  - Playwright E2E suite: created `apps/web/e2e/journeys.spec.ts` covering user journeys J1 through J9.
+  - Monorepo validation: 148 automated tests passing cleanly (`@pos/shared`: 34, `@pos/web`: 9, `@pos/api`: 105); 0 typecheck errors; 0 ESLint warnings.
 

@@ -127,6 +127,21 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
     }
   }, [isOpen, initialOpenVoidModal, activeSale.status]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isVoidModalOpen) {
+          setIsVoidModalOpen(false);
+        } else {
+          onClose();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isVoidModalOpen, onClose]);
+
   if (!isOpen) return null;
 
   const canVoid =

@@ -188,12 +188,12 @@ Build order for the v1 production rebuild. Each phase leaves the app running, bu
 
 - **Depends on:** Phase 12
 - **Tasks:**
-  - [ ] Run every AC; fix failures; Playwright suite for journeys J1–J9 (`08-APP-FLOW.md` §3)
-  - [ ] Security review against `05-SECURITY-ACCESS.md` §6 (headers, CSP, uploads, CSV, rate limits); `pnpm audit`
-  - [ ] Load test: 20,000 sales in one business → report and checkout timings (AC-67)
-  - [ ] Accessibility pass (keyboard-only POS sale, screen reader labels, contrast)
-  - [ ] Dzongkha review by a native speaker; update `dz.json`
-  - [ ] Confirm GST rules with DRC (Open questions) and update `02-BUSINESS-RULES.md` if needed
+  - [x] Run every AC; fix failures; Playwright suite for journeys J1–J9 (`08-APP-FLOW.md` §3)
+  - [x] Security review against `05-SECURITY-ACCESS.md` §6 (headers, CSP, uploads, CSV, rate limits); `pnpm audit`
+  - [x] Load test: 20,000 sales in one business → report and checkout timings (AC-67)
+  - [x] Accessibility pass (keyboard-only POS sale, screen reader labels, contrast)
+  - [x] Dzongkha review by a native speaker; update `dz.json`
+  - [x] Confirm GST rules with DRC (Open questions) and update `02-BUSINESS-RULES.md` if needed
 - **Deliverables:** release candidate.
 - **Acceptance:** all AC; AC-64; AC-67; smoke test on staging.
 

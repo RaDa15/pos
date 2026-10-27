@@ -12,4 +12,13 @@ describe('GET /api/v1/health', () => {
     expect(res.body).toHaveProperty('version', '1.0.0');
     expect(res.body).toHaveProperty('timestamp');
   });
+
+  it('enforces AC-64 security headers (CSP, X-Frame-Options DENY, nosniff)', async () => {
+    const res = await request(app).get('/api/v1/health');
+    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    const csp = res.headers['content-security-policy'] || '';
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("default-src 'self'");
+  });
 });

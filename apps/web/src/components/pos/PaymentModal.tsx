@@ -49,6 +49,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   }, [isOpen, total]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isSubmitting, onClose]);
+
   if (!isOpen) return null;
 
   const totalPaid = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);

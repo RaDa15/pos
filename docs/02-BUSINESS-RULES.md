@@ -299,6 +299,18 @@ These facts drive BR-10, BR-11, BR-23 and BR-36. They come from secondary source
 - Exports are zero-rated. Some essentials are exempt, reportedly including rice, cooking oil, salt, sanitary pads, wheelchairs, and core education and health services. **The prototype's demo data charges 5% on rice, cooking oil and salt; v1 seed data marks them exempt.**
 - Domestic registration is mandatory above Nu. 5 million annual turnover and voluntary from Nu. 2.5 million, so some customers of this app won't be GST-registered (BR-11).
 - Registered businesses issue serially numbered tax invoices showing the words "tax invoice", the date, supplier and customer details, description and quantity, discounts and the total (BR-23, BR-36).
-- Returns are filed through the DRC's BITS portal, mostly monthly, within 30 days of the period end (F-14 exports support this).
-
 Sources: [KPMG — Bhutan new GST regime](https://kpmg.com/us/en/taxnewsflash/news/2025/10/tnf-bhutan-new-gst-regime-to-replace-existing-sales-tax-framework.html), [Beancount — Bhutan 5% GST small business guide](https://beancount.io/blog/2026/07/16/bhutan-5-percent-gst-2026-small-business-guide).
+
+### 8.1 DRC Rule Confirmations (Phase 13 Hardening)
+
+1. **Tax Invoice vs Retail Receipt (BR-11, BR-36):**
+   - **GST Registered:** Header reads "TAX INVOICE" with mandatory fields: Supplier Name, Address, TPN/GST No, Sequential Invoice No (`INV-YYYY-XXXXX`), BTT Date/Time, Taxable Amount, 5% GST, and Grand Total.
+   - **Non-GST Registered:** Header reads "RETAIL INVOICE", all items are recorded with 0% GST, and DRC tax credentials are suppressed from receipts.
+2. **Exempt vs Zero-Rated Segregation (AC-43, AC-45):**
+   - Zero-rated (`0.00%` on eligible exports) and Exempt (`0.00%` on essential food and healthcare items) are tracked under discrete `TaxCategory` enums (`standard`, `zero`, `exempt`) and reported separately in DRC returns and CSV exports.
+3. **Voided Transactions (BR-30, AC-43):**
+   - Any invoice voided by an authorized Manager/Admin is completely excluded from the taxable turnover, GST collected totals, and BITS periodic returns. The audit log retains the void reason and timestamp.
+4. **Timezone & Cutoff (BR-33, AC-44):**
+   - All sales belong to the Asia/Thimphu (UTC+6) business date. The standard daily cutoff aligns with BTT midnight (23:59:59).
+5. **Service Charges & Extra Fees (BR-15):**
+   - Packaging, tips, and delivery fees recorded under `charges` are non-taxed additions. Any formal restaurant service fee required to be taxed must be entered as a catalogue service line item.

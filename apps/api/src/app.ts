@@ -36,7 +36,29 @@ import { dataRouter } from './routes/data.js';
 export function createApp(): Express {
   const app = express();
 
-  app.use(helmet());
+  const isProduction = env.NODE_ENV === 'production' || env.NODE_ENV === 'staging';
+
+  app.use(
+    helmet({
+      frameguard: { action: 'deny' },
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'blob:'],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          fontSrc: ["'self'"],
+          frameAncestors: ["'none'"],
+        },
+      },
+      hsts: isProduction
+        ? {
+            maxAge: 31536000,
+            includeSubDomains: true,
+            preload: true,
+          }
+        : false,
+    })
+  );
   app.use(
     cors({
       origin: env.CORS_ORIGIN,

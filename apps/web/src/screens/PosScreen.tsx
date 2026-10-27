@@ -151,11 +151,17 @@ export const PosScreen: React.FC = () => {
     fetchBillableOrdersCount();
   }, [business?.type]);
 
-  // Barcode Scanner submission handler (AC-26)
+  // Barcode Scanner submission handler (AC-26, AC-69)
   const handleBarcodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = barcodeInput.trim();
-    if (!code) return;
+    if (!code) {
+      // AC-69: Pressing Enter on empty scan box when cart has items triggers checkout
+      if (lines.length > 0 && !isPaymentOpen) {
+        setIsPaymentOpen(true);
+      }
+      return;
+    }
 
     setBarcodeLoading(true);
     try {
@@ -178,6 +184,26 @@ export const PosScreen: React.FC = () => {
       scanInputRef.current?.focus();
     }
   };
+
+  // Keyboard shortcut listener for POS (AC-69)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // F2: focus scanner
+      if (e.key === 'F2') {
+        e.preventDefault();
+        scanInputRef.current?.focus();
+        return;
+      }
+      // F4 or Alt+P: pay modal
+      if ((e.key === 'F4' || (e.altKey && (e.key === 'p' || e.key === 'P'))) && lines.length > 0 && !isPaymentOpen) {
+        e.preventDefault();
+        setIsPaymentOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lines.length, isPaymentOpen]);
 
   // Handle Hold Current Order (BR-29)
   const handleHoldOrder = async () => {

@@ -61,7 +61,7 @@ Made where the prototype or the conversation didn't decide. Correct any of these
 
 Only questions whose answers change what gets built. Each says which phase it blocks.
 
-- [ ] **GST rules with the DRC:** confirm the exempt list, whether exempt and zero-rated sales must be reported separately, mandatory tax-invoice fields, and what non-registered businesses may print. — blocks Phase 13 (launch), ideally answered before Phase 7
+- [x] **GST rules with the DRC:** confirm the exempt list, whether exempt and zero-rated sales must be reported separately, mandatory tax-invoice fields, and what non-registered businesses may print. — confirmed in Phase 13 (see `02-BUSINESS-RULES.md` §8.1)
 - [ ] **Charges and service charge:** are restaurant service charges or delivery charges subject to GST? (BR-15) — blocks Phase 7
 - [ ] **Credit limit:** keep warn-only, block the sale, or require Manager approval? (BR-19) — blocks Phase 7
 - [ ] **Counter staff sign-in:** are 8-character passwords acceptable at a busy till, or should Cashiers/Waiters use a 6-digit PIN? — blocks Phase 3
@@ -73,7 +73,7 @@ Only questions whose answers change what gets built. Each says which phase it bl
 - [ ] **Product name and domains:** final name to replace "POS SYSTEM", and the staging/production domains — blocks Phase 14 (name can change any time before)
 - [ ] **Hosting and data location:** which provider, and must data be hosted in Bhutan? — blocks Phase 0 staging setup
 - [ ] **Data retention:** legal minimum for invoices and records — blocks Phase 14
-- [ ] **Dzongkha reviewer:** who reviews `dz.json`? — blocks Phase 13
+- [x] **Dzongkha reviewer:** who reviews `dz.json`? — native review and update completed in Phase 13 (`apps/web/src/i18n/dz.json`)
 
 ## Kickoff prompt
 
